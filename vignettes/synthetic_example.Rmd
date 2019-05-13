@@ -129,7 +129,7 @@ fit <- lm(outcome~lag_matrix, rec,
           x = FALSE, y = FALSE, tol = 1e-50, 
           na.action = na.exclude)
 
-summarize_lm(fit)
+summarize_lm(fit)[, -c('adj_r_squared'), with = FALSE]
 
 resp <- response_from_fit(fit)
 resp$x <- resp$x * dt
@@ -168,7 +168,7 @@ fit <- lm(outcome~lag_matrix, rec,
           x = FALSE, y = FALSE, tol = 1e-50, 
           na.action = na.exclude)
 
-summarize_lm(fit)
+summarize_lm(fit)[, -c('adj_r_squared'), with = FALSE]
 
 resp <- response_from_fit(fit)
 resp$x[1] <- 0.1
@@ -205,7 +205,7 @@ fit <- lm(outcome~distributed_lag, rec,
           x = FALSE, y = FALSE, tol = 1e-50, 
           na.action = na.exclude)
 
-summarize_lm(fit)
+summarize_lm(fit)[, -c('adj_r_squared'), with = FALSE]
 
 resp <- response_from_fit(fit)
 resp$x[1] <- 0.1
