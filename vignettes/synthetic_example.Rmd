@@ -58,10 +58,11 @@ resp_fun <- cumsum(rev(kern))*0.5
 par(mar = c(5,5,0.5,0.5))
 
 lag_resp_fun <- 0:43200
+lag_resp_fun[1] <- 0.1                                            # for log axis
 plot(resp_fun~lag_resp_fun, 
      type = 'l', las = 1,
      log = 'x', col = '#96BC56', lwd = 3,
-     xlab = 'Time lag', ylab = 'Cumulative response')
+     xlab = 'Time lag (s)', ylab = 'Cumulative response')
 ```
 
 
@@ -139,7 +140,7 @@ par(mar = c(5, 5, 0.5, 0.5))
 plot(resp_fun~lag_resp_fun, 
      type = 'l', las = 1,
      log = 'x', col = '#96BC56', lwd = 3,
-     xlab = 'Time lag', ylab = 'Cumulative response')
+     xlab = 'Time lag (s)', ylab = 'Cumulative response')
 
 points(value~x, resp, type = 'l', lwd = 2, pch = 20, col = '#5696BC')
 ```
@@ -177,7 +178,7 @@ par(mar = c(5, 5, 0.5, 0.5))
 plot(resp_fun~lag_resp_fun, 
      type = 'l', las = 1,
      log = 'x', col = '#96BC56', lwd = 3,
-     xlab = 'Time lag', ylab = 'Cumulative response')
+     xlab = 'Time lag (s)', ylab = 'Cumulative response')
 
 points(value~x, resp, type = 'l', lwd = 2, pch = 20, col = '#5696BC')
 ```
@@ -214,7 +215,7 @@ par(mar = c(5, 5, 0.5, 0.5))
 plot(resp_fun~lag_resp_fun, 
      type = 'l', las = 1,
      log = 'x', col = '#96BC56', lwd = 3,
-     xlab = 'Time lag', ylab = 'Cumulative response')
+     xlab = 'Time lag (s)', ylab = 'Cumulative response')
 
 points(value~x, resp, type = 'l', lwd = 2, pch = 20, col = '#5696BC')
 ```

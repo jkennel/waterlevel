@@ -161,7 +161,7 @@ resp <- response_from_fit(fit)                           # get the baro response
 ```
 
 ```{r solvesimple3, eval = TRUE}
-summarize_lm(fit)
+summarize_lm(fit)[, -c('adj_r_squared'), with = FALSE]
 ```
 
 
@@ -218,7 +218,7 @@ resp_dist <- response_from_fit(fit_dist)                 # get the baro response
 ```
 
 ```{r solvedist3, echo = FALSE, eval = TRUE}
-summarize_lm(fit_dist)
+summarize_lm(fit_dist)[, -c('adj_r_squared'), with = FALSE]
 ```
 
 ```{r solvedistplot, echo = FALSE, fig.width = 4.3, fig.height = 3, hold = TRUE}
@@ -310,19 +310,18 @@ dat <- recipe(wl~., transducer) %>%
 
 ```{r solveharm, echo = FALSE, warning = FALSE}
 
-to_drop <- c('datetime', 'baro', 'et')
 fit_harm <- lm(outcome~distributed_lag + earthtide + splines, dat, 
                x = FALSE, y = FALSE, tol = 1e-50, 
                na.action = na.exclude)
 
-dat <- transducer %>% mutate(residuals = residuals(fit))         # add residuals
+dat <- transducer %>% mutate(residuals = residuals(fit_harm))    # add residuals
 
 resp_harm <- response_from_fit(fit_harm)                 # get the baro response
 
 ```
 
 ```{r solveharm3, eval = TRUE, echo = FALSE}
-summarize_lm(fit_harm)
+summarize_lm(fit_harm)[, -c('adj_r_squared'), with = FALSE]
 ```
 
 ```{r solveharm2, echo = FALSE, fig.width = 4.3, fig.height = 3, hold = TRUE}
