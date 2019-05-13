@@ -21,7 +21,7 @@ cat('# waterlevel',
 )
 ```
 
-The **waterlevel** package is designed to simplify the analysis of well water level data in **R**.  Currently the focus is on barometric/loading (BE/LE) efficiency, but the package is under active development..
+The **waterlevel** package is designed to simplify the analysis of well water level data in **R**.  Currently the focus is on barometric/loading (BE/LE) efficiency, but the package is under active development.
 
 ## Installation
 
