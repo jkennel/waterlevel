@@ -50,7 +50,7 @@ data(transducer)
 # First step: Plot the data
 
 ```{r plotwl, echo = FALSE, fig.height = 2, fig.margin = TRUE}
-par(mar = c(2,5,0.5,0.5))
+par(mar = c(2, 5, 0.5, 0.5))
 plot(baro~datetime, transducer, type = 'l', 
      las = 1, lwd = 2, col = '#BC7C56',
      xlab = '', ylab = 'baro (dbar)')
@@ -72,7 +72,7 @@ transducer[, baro_detrend := lm(baro~datetime)$residuals]
 ```
 
 ```{r trendremovalplot, echo = FALSE, fig.height = 4, fig.margin = TRUE}
-par(mar = c(2,5,0.5,0.5))
+par(mar = c(2, 5, 0.5, 0.5))
 plot(baro_detrend~datetime, transducer, 
      type = 'l', las = 1,
      col = '#BC7C56',  lwd = 2,
@@ -113,7 +113,7 @@ be_ls
 ```
 
 ```{r leastsquaresplot, echo = FALSE, fig.height = 4, fig.margin = TRUE}
-par(mar = c(5,5,0.5,0.5))
+par(mar = c(5, 5, 0.5, 0.5))
 plot(wl_detrend~baro_detrend, transducer,
      pch = 20, las = 1,
      cex = 0.05, col = '#000000',
@@ -143,7 +143,7 @@ be_lsd
 
 
 ```{r leastsquaresdiffplot, echo = FALSE, fig.height = 4, fig.margin = TRUE}
-par(mar = c(5,5,0.5,0.5))
+par(mar = c(5, 5, 0.5, 0.5))
 plot(diff(wl_detrend, 30)~diff(baro_detrend,30), transducer,
      pch = 20, las = 1,
      cex = 0.05, col = '#000000',
@@ -172,7 +172,7 @@ be_lsds <- sapply(difference_spaces, function(x) {
 ```
 
 ```{r leastsquaresdiffvecplot, echo = FALSE, fig.height = 4, fig.margin = TRUE}
-par(mar = c(5,5,0.5,0.5))
+par(mar = c(5, 5, 0.5, 0.5))
 plot(be_lsds~difference_spaces, log = 'x', type = 'o', pch = 20)
 abline(h = be_ls, lty = 2)
 text(x = 1, y = be_ls, label = 'Least squares solution', pos = 4)

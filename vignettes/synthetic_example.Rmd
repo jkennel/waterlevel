@@ -77,14 +77,14 @@ Convolution of barometric pressure data and response function.  Water levels hav
 ```{r synthetic, fig.height = 4, fig.width=6}
 dat <- synthetic(sd_noise = 0e-2,
                  sd_noise_trend = 0e-12,
-                 n = 4*86400,
+                 n = 4 * 86400,
                  linear_trend = 0e-12,
                  seed = 1,
                  baro_kernel = kern)[, list(datetime, baro, wl)]
 
-dat <- dat[1:(2.5*86400)]
-dat[, baro := baro - mean(baro, na.rm=TRUE)]
-dat[, wl := wl - mean(wl, na.rm=TRUE)]
+dat <- dat[1:(2.5 * 86400)]
+dat[, baro := baro - mean(baro, na.rm = TRUE)]
+dat[, wl := wl - mean(wl, na.rm = TRUE)]
 ```
 
 ```{r syntheticplot, fig.height = 4, fig.width=6, echo = FALSE}
@@ -108,7 +108,7 @@ dt <- 60
 
 dat_sub <- dat[seq(1, nrow(dat), dt)]
 
-ba_lags <- seq(0, (43200+dt)/dt, 1)
+ba_lags <- seq(0, (43200+dt) / dt, 1)
 
 rec <- recipe(wl~., dat_sub) %>%                          
   step_lag_matrix(baro, lag = ba_lags) %>%                   
@@ -134,14 +134,14 @@ resp <- response_from_fit(fit)
 resp$x <- resp$x * dt
 resp$x[1] <- 0.1
 
-par(mar = c(5,5,0.5,0.5))
+par(mar = c(5, 5, 0.5, 0.5))
 
 plot(resp_fun~lag_resp_fun, 
      type = 'l', las = 1,
      log = 'x', col = '#96BC56', lwd = 3,
      xlab = 'Time lag', ylab = 'Cumulative response')
 
-points(value~x, resp, type='l', lwd = 2, pch = 20, col = '#5696BC')
+points(value~x, resp, type = 'l', lwd = 2, pch = 20, col = '#5696BC')
 ```
 
 
@@ -172,14 +172,14 @@ summarize_lm(fit)
 resp <- response_from_fit(fit)
 resp$x[1] <- 0.1
 
-par(mar = c(5,5,0.5,0.5))
+par(mar = c(5, 5, 0.5, 0.5))
 
 plot(resp_fun~lag_resp_fun, 
      type = 'l', las = 1,
      log = 'x', col = '#96BC56', lwd = 3,
      xlab = 'Time lag', ylab = 'Cumulative response')
 
-points(value~x, resp, type='l', lwd = 2, pch = 20, col = '#5696BC')
+points(value~x, resp, type = 'l', lwd = 2, pch = 20, col = '#5696BC')
 ```
 
 
@@ -209,14 +209,14 @@ summarize_lm(fit)
 resp <- response_from_fit(fit)
 resp$x[1] <- 0.1
 
-par(mar = c(5,5,0.5,0.5))
+par(mar = c(5, 5, 0.5, 0.5))
 
 plot(resp_fun~lag_resp_fun, 
      type = 'l', las = 1,
      log = 'x', col = '#96BC56', lwd = 3,
      xlab = 'Time lag', ylab = 'Cumulative response')
 
-points(value~x, resp, type='l', lwd = 2, pch = 20, col = '#5696BC')
+points(value~x, resp, type = 'l', lwd = 2, pch = 20, col = '#5696BC')
 ```
 
 

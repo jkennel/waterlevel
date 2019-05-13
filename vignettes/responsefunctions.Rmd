@@ -28,6 +28,7 @@ library(recipes)
 library(rlang)
 library(purrr)
 library(dplyr)
+library(fftw)
 
 data(transducer)
 
@@ -149,7 +150,7 @@ We can fit the model with _lm_ and the fitting method is the same for each of th
 
 ```{r solvesimple, echo = TRUE, warning = FALSE}
 
-fit <- lm(outcome~lag_matrix_baro+lag_matrix_et + splines, dat,      # fit model 
+fit <- lm(outcome~lag_matrix_baro + lag_matrix_et + splines, dat,      # fit model 
           x = FALSE, y = FALSE, tol = 1e-50, 
           na.action = na.exclude)
 
@@ -229,7 +230,7 @@ plot(residuals~datetime, dat, type = 'l',
 
 par(mar = c(5,6,0.5,0.5), mgp = c(3.5, 0.5, 0))
 
-plot(value~x, resp_dist[variable == 'baro'], type = 'o', 
+plot(value~x, resp_dist[variable == 'baro'], type = 'l', 
      las = 1, lwd = 2, col = '#5696BC', cex = 0.5, pch = 20,
      ylim = c(0, 1),
      xlab = 'Lag value (each lag is 2 minutes)', ylab = 'Cumulative Response')
@@ -344,7 +345,7 @@ plot(value~x, resp_harm[type == 'amplitude'], type = 'h', lwd = 3,
 
 par(mar = c(5,6,0.5,0.5), mgp = c(3.5, 0.5, 0))
 
-plot(value~x, resp_harm[variable == 'baro'], type = 'o', 
+plot(value~x, resp_harm[variable == 'baro'], type = 'l', 
      las = 1, lwd = 2, col = '#5696BC', cex = 0.5, pch = 20,
      ylim = c(0, 1),
      xlab = 'Lag value (each lag is 2 minutes)', ylab = 'Cumulative Response')
