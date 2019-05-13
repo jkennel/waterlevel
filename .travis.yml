@@ -1,0 +1,12 @@
+language: r
+cache: packages
+sudo: required
+apt_packages:
+  - libfftw3-dev
+r_packages:
+  - devtools
+  - covr
+  - recipes
+  - fftw
+after_success:
+  - Rscript -e 'covr::codecov()'

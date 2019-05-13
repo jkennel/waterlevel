@@ -1,0 +1,42 @@
+---
+output: github_document
+---
+
+
+
+```{r echo=FALSE, results="hide", message=FALSE}
+library("badger")
+```
+
+
+```{r, echo = FALSE, results='asis'}
+
+cat('# waterlevel',
+  '[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)',
+  badge_travis("jkennel/waterlevel"),
+  '[![Coverage Status](https://img.shields.io/codecov/c/github/jkennel/waterlevel/master.svg)](https://codecov.io/github/jkennel/waterlevel?branch=master)',
+	badge_cran_release("waterlevel", "green"),
+	badge_cran_download("waterlevel", "grand-total", "green")
+)
+```
+
+The **waterlevel** package is designed to simplify the analysis of well water level data **R**.  Currently the focus is on barometric/loading efficiency.
+
+# Installation
+```{r echo=FALSE, results="hide", message=FALSE}
+remotes::install_github("jkennel/waterlevel")
+```
+
+
+
+## Future work ##
+
+Decrease dependencies
+fft methods
+Add parameter estimation methods
+Add analysis methods (slug testing, pumping tests)
+Increase test coverage
+Increase memory and computational efficiency
+Gap filling methods
+
+

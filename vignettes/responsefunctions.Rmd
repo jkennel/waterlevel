@@ -1,0 +1,444 @@
+---
+title: "Response functions"
+date: "`r Sys.Date()`"
+authors: Jonathan Kennel, Beth Parker
+vignette: >
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteIndexEntry{Response Functions}
+  %\VignetteEncoding{UTF-8}
+bibliography: staticbe.bib
+link-citations: no
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  fig.ext = 'png',
+  comment = "#>"
+)
+```
+
+```{r setup, results = 'hide', echo = FALSE, warning = FALSE, message = FALSE}
+
+library(waterlevel)
+library(earthtide)
+library(data.table)
+library(plotly)
+library(recipes)
+library(rlang)
+library(purrr)
+library(dplyr)
+
+data(transducer)
+
+max_lag_baro <- 43200/diff(as.numeric(transducer[1:2]$datetime))
+lag_baro_spacing <- 5
+
+max_lag_et <- 21600/diff(as.numeric(transducer[1:2]$datetime))
+lag_et_spacing <- 15
+
+ns_df <- 31
+
+```
+
+```{r plotwl, echo = FALSE, fig.height = 2, fig.margin = TRUE}
+
+par(mar = c(2,5,0.5,0.5), mgp = c(3.5, 0.5, 0))
+plot(baro~datetime, transducer, type = 'l', 
+     las = 1, lwd = 2, col = '#BC5696',
+     xlab = '', ylab = 'baro (dbar)')
+
+plot(wl~datetime, transducer, type = 'l', 
+     las = 1, lwd = 2, col = '#5696BC',
+     xlab = '', ylab = 'wl (dbar)')
+
+plot(et~datetime, transducer, type = 'l', 
+     las = 1, lwd = 2, col = '#96BC56',
+     xlab = '', ylab = 'Synthetic gravity')
+
+```
+
+# Introduction
+
+Response functions can provide a more complete picture than single value methods that were presented in the [Static BE vignette](staticbe.html). Static BE methods tend to be very simple to apply but their interpretation and any derivative values determined from them should be treated as rough estimates in all but the most ideal circumstances. In the [Synthetic example vignette](synthetic_example.html) we fit barometric response functions for a synthetic dataset with a known response function to test the efficiency of different methods.
+
+This vignette shows how to calculate the impulse response functions (time domain) and frequency response functions (frequency domain) for water levels, barometric pressure and Earth tides using field data.  Including terms for Earth tides is suggested for confined and semi-confined aquifers so our examples will show how to easily include them with the *earthtide* package.
+
+
+---
+
+
+## Time domain barometric response function
+
+We have decided to take the approach used in the *recipes* package for the time being where we provide steps to build our dataset to be used for linear regression.  By building the dataset with a _recipe_, it also allows for the user to easily specify the model of choice.  For our examples we will use the _lm_ function to determine the appropriate parameters.  By the end of the time-domain section we will have fit the data using the following methods:
+
+- Lagged barometric response
+    - Regular spaced [@rasmussen1997identifying]
+    - Irregular spacing 
+    - Distributed lag 
+- Earth tides 
+    - Harmonic (specified frequencies) [@rasmussen2007monitoring]
+    - Theoretical 
+        - Lagged [@toll2007removal]
+        - Harmonic constituents [@wenzel1996nanogal]
+- Background trend (spline fit)
+- Level shifts
+
+---
+
+### Regular and irregular spaced lag method
+
+Regular and irregular lag models can be specified in the same manner. In this example we generate a set of regularly spaced lags using seq, but they could be specified individually or with another function.  We find logarithmically spaced lags generated with _log_lags_ can work well to get good resolution at early times while still having a parsimoneous model.
+
+Monitoring interval: 2 minutes
+
+Barometric lag range: 0 to  `r max_lag_baro` by `r lag_baro_spacing`
+
+Earth tide lag range: 0 to  `r max_lag_et` by `r lag_et_spacing`
+
+Natural spline fit for temporal trend with `r ns_df` degrees of freedom
+
+```{r brfsimple}
+
+delta_t <- 120                          # seconds
+
+max_lag_baro <- 43200/delta_t           # 0.5 days 
+lag_baro_spacing <- 2                   # 4 minute between lags
+
+max_lag_et <- 21600/delta_t             # 0.25 days
+lag_et_spacing <- 15                    # 30 minutes between lags
+
+ns_df <- 21                             # natural spline with 21 terms
+
+ba_lags <- seq(0, max_lag_baro, lag_baro_spacing)   # barometric lag terms (reg)
+et_lags <- seq(0, max_lag_et, lag_et_spacing)       # earthtide lag terms  (reg)
+
+```
+
+
+### Example recipe:
+
+```{r brfsimplerecipe}
+
+dat <- recipe(wl~., transducer) %>%                                           #1
+  step_lag_matrix(baro, lag = ba_lags, role = 'lag_matrix_baro') %>%          #2
+  step_lag_matrix(et, lag = et_lags, role = 'lag_matrix_et') %>%              #3
+  step_mutate(datetime2 = as.numeric(datetime)) %>%                           #4
+  step_ns(datetime2, deg_free = ns_df, role = 'splines') %>%                  #5
+  prep() %>%                                                                  #6
+  portion()                                                                   #7
+
+```
+
+
+1. Take the transducer dataset, use _wl_ as my dependent variable
+1. Lag the _baro_ column to have a maximum lag of 0.5 day with 4 minute spacing
+1. Lag the _et_ column to have a maximum lag of 0.25 days with 30 minute spacing
+1. Convert the datetime column from POSIXt to numeric (necessary for step_ns) 
+1. Generate spline basis function regressors
+1. Run the steps
+1. Generate output for lm
+
+---
+
+
+
+### Fit the model:
+
+We can fit the model with _lm_ and the fitting method is the same for each of the recipes so we will not repeat that code in the following examples. 
+
+```{r solvesimple, echo = TRUE, warning = FALSE}
+
+fit <- lm(outcome~lag_matrix_baro+lag_matrix_et + splines, dat,      # fit model 
+          x = FALSE, y = FALSE, tol = 1e-50, 
+          na.action = na.exclude)
+
+dat <- transducer %>% mutate(residuals = residuals(fit))         # add residuals
+
+resp <- response_from_fit(fit)                           # get the baro response
+
+```
+
+```{r solvesimple3, eval = TRUE}
+summarize_lm(fit)
+```
+
+
+```{r solvesimpleplot, echo = FALSE, fig.width = 4.3, fig.height = 3, hold = TRUE}
+
+par(mar = c(5,6,0.5,0.5), mgp = c(3.5, 0.5, 0))
+
+plot(residuals~datetime, dat, type = 'l', 
+     las = 1, lwd = 2, col = '#5696BC',
+     xlab = '', ylab = 'residuals (dbar)')
+
+par(mar = c(5,6,0.5,0.5), mgp = c(3.5, 0.5, 0))
+
+plot(value~x, resp[variable == 'baro'], type = 'o', 
+     las = 1, lwd = 2, col = '#5696BC', cex = 0.5, pch = 20,
+     ylim = c(0, 1),
+     xlab = 'Lag value (each lag is 2 minutes)', ylab = 'Cumulative Response')
+
+```
+
+
+
+
+---
+
+## Distributed lag method
+
+For this example we use _step_lag_distributed_ instead of _step_lag_matrix_.  We then specify knots that are logaritmically spaced using _log_lags_.  This decreases the number of regressors while still capturing early time behaviour.  Results are visibly similar, however, the distributed lag model is requires fewer regressors, is faster to solve, and provides better early time resolution in this example.
+
+```{r brfdist}
+
+knots <- log_lags(15, max_lag_baro)
+dat <- recipe(wl~., transducer) %>%                          
+  step_distributed_lag(baro, knots = knots) %>%    
+  step_lag_matrix(et, lag = et_lags) %>%      
+  step_mutate(datetime_num = as.numeric(datetime)) %>%           
+  step_ns(datetime_num, deg_free = ns_df, role = 'splines') %>%                        
+  prep() %>%                                                 
+  portion()                                                    
+
+```
+
+
+```{r solvedist, echo = FALSE, warning = FALSE}
+
+fit_dist <- lm(outcome~distributed_lag + lag_matrix + splines, dat, 
+          x = FALSE, y = FALSE, tol = 1e-50, 
+          na.action = na.exclude)
+
+dat <- transducer %>% mutate(residuals = residuals(fit))         # add residuals
+
+resp_dist <- response_from_fit(fit_dist)                 # get the baro response
+
+```
+
+```{r solvedist3, echo = FALSE, eval = TRUE}
+summarize_lm(fit_dist)
+```
+
+```{r solvedistplot, echo = FALSE, fig.width = 4.3, fig.height = 3, hold = TRUE}
+par(mar = c(5,6,0.5,0.5), mgp = c(3.5, 0.5, 0))
+
+plot(residuals~datetime, dat, type = 'l', 
+     las = 1, lwd = 2, col = '#5696BC',
+     xlab = '', ylab = 'residuals (dbar)')
+
+par(mar = c(5,6,0.5,0.5), mgp = c(3.5, 0.5, 0))
+
+plot(value~x, resp_dist[variable == 'baro'], type = 'o', 
+     las = 1, lwd = 2, col = '#5696BC', cex = 0.5, pch = 20,
+     ylim = c(0, 1),
+     xlab = 'Lag value (each lag is 2 minutes)', ylab = 'Cumulative Response')
+
+```
+
+
+---
+
+# Earth tides
+
+In the previous two examples we used a lagged version of the pre-computed Earth tide signal.  We also have the option of directly specifing the Earth tide calcuation in the recipe.
+
+Three primary ways to do this as implemented in *waterlevel* are:
+
+1. Using a lagged form of the Earth tide signal. This method uses the *earthtide* package to calculate a synthetic tide and lag the result.  For datasets of less than 14 days, this is the preferred method.  The problem is that the regression coefficients are not easily interpreted, but for removing a signal they work well.
+
+1. Calculate the Earth tide components for wave groups and use those in the regression equation.  This method uses the *earthtide* package to calculate synthetic tidal constituents.
+
+1. Generate cosine curves of different frequencies.  For this method the frequencies are specified in cycles per day and the appropriate sin and cos curves used in regression are created.
+
+
+Here are example steps for the above three methods:
+
+```{r harmsteps, eval = FALSE}
+
+# Method 1
+step_lag_earthtide(datetime,
+                   lag = et_lags,
+                   longitude = -118.67,
+                   latitude = 34.23,
+                   elevation = 550,
+                   wave_groups = wave_groups, 
+                   astro_update = 60)
+
+# Method 2
+step_earthtide(datetime,
+               longitude = -118.67,
+               latitude = 34.23,
+               elevation = 550,
+               wave_groups = wave_groups, 
+               astro_update = 60)
+
+# Method 3 with top 6 diurnal and semi-diurnal signals O1, K1, P1, N2, M2, S2
+step_harmonic(datetime,
+              freq = c(0.9295357, 0.9972621, 1.0027379, 
+                       1.8959820, 1.9322736, 2.0000000)) 
+
+```
+
+Let's use our previous recipe for the distributed lag dataset but instead use method 2 for Earth tides.
+
+
+```{r harmrecipe}
+
+# Select wavegroups
+wave_groups <- as.data.table(earthtide::eterna_wavegroups)
+wave_groups <- wave_groups[start > 0.5]
+wave_groups <- na.omit(wave_groups[time == '1 month', c('start', 'end')])
+
+knots <- log_lags(15, max_lag_baro)
+dat <- recipe(wl~., transducer) %>%                          
+  step_distributed_lag(baro, knots = knots) %>%   
+  step_earthtide(datetime,
+               longitude = -118.67,
+               latitude = 34.23,
+               elevation = 550,
+               wave_groups = wave_groups, 
+               astro_update = 60) %>%      
+  step_mutate(datetime_num = as.numeric(datetime)) %>%           
+  step_ns(datetime_num, deg_free = ns_df, role = 'splines') %>%                        
+  prep() %>%                                                 
+  portion()                                                    
+
+```
+
+
+```{r solveharm, echo = FALSE, warning = FALSE}
+
+to_drop <- c('datetime', 'baro', 'et')
+fit_harm <- lm(outcome~distributed_lag + earthtide + splines, dat, 
+               x = FALSE, y = FALSE, tol = 1e-50, 
+               na.action = na.exclude)
+
+dat <- transducer %>% mutate(residuals = residuals(fit))         # add residuals
+
+resp_harm <- response_from_fit(fit_harm)                 # get the baro response
+
+```
+
+```{r solveharm3, eval = TRUE, echo = FALSE}
+summarize_lm(fit_harm)
+```
+
+```{r solveharm2, echo = FALSE, fig.width = 4.3, fig.height = 3, hold = TRUE}
+
+par(mar = c(5,5,0.5,0.5))
+
+plot(residuals~datetime, dat, type = 'l', 
+     las = 1, lwd = 2, col = '#5696BC',
+     xlab = '', ylab = 'residuals (dbar)')
+
+par(mar = c(5,6,0.5,0.5), mgp = c(3.5, 0.5, 0))
+
+plot(value~x, resp_harm[type == 'amplitude'], type = 'h', lwd = 3, 
+     las = 1, col = '#5696BC',
+     xlab = 'frequency', ylab = 'Amplitude')
+
+```
+
+```{r solveharmet, echo = FALSE, fig.width = 4.3, fig.height = 3, hold = TRUE}
+
+par(mar = c(5,6,0.5,0.5), mgp = c(3.5, 0.5, 0))
+
+plot(value~x, resp_harm[variable == 'baro'], type = 'o', 
+     las = 1, lwd = 2, col = '#5696BC', cex = 0.5, pch = 20,
+     ylim = c(0, 1),
+     xlab = 'Lag value (each lag is 2 minutes)', ylab = 'Cumulative Response')
+
+par(mar = c(5,6,0.5,0.5), mgp = c(3.5, 0.5, 0))
+
+
+plot(value~x, resp_harm[type == 'phase'], type = 'h', lwd = 3, 
+     las = 1, col = '#5696BC',
+     xlab = 'frequency', ylab = 'Phase (radian)')
+
+```
+
+
+The three models tend to perform similarly for this well.  However, I would choose the last model as it has the fewest, regressors, the lowest residual standard error, and provides useful Earth tide amplitude and phase information.  This well had a generally small Earth tide component and it is hardly visible in the original wl pressure time series, however, we seem to be able achieve reasonable approximation of the theoretical amplitudes.
+
+
+# Frequency domain response functions 
+
+The following papers provide a good introduction to frequency response functions and their applications to water levels [@rojstaczer1989influence,@lai2013transfer, @hussein2013borehole].
+
+There are currently two ways to calculate the transfer function in the *waterlevel* package.  Using the default method which smooths the periodogram, or using Welch's method. See _spec_pgram_ and _spec_welch_ for parameters.  Often there is a lot of noise at high frequencies.  We plot Acworth's method of static BE as a point in each figure, which is fundamentally just the value of the transfer function at 2 cycles per day (@Acworth2016). These methods also output the phase and coherence, but for the following plots we will stick to gain which can be thought of as the loading efficiency as a function of frequency for these examples.
+
+```{r frf, eval = TRUE}
+
+tf_pgram <- transfer_fun(transducer,
+                   vars = c('wl', 'baro', 'et'), 
+                   time = 'datetime', 
+                   method = 'spec_pgram',
+                   spans = c(3))
+
+
+
+tf_welch <- transfer_fun(transducer,
+                   vars = c('wl', 'baro', 'et'), 
+                   time = 'datetime', 
+                   method = 'spec_welch',
+                   n_subsets = 10)
+
+# Acworth BE
+be_a <- be_acworth(transducer, wl = 'wl', ba = 'baro', et = 'et', 
+                   inverse = FALSE)
+
+```
+
+```{r frfplot, eval = TRUE, echo = FALSE, fig.height = 2.5, fig.margin = TRUE}
+par(mar = c(5,5,0.5,0.5))
+x_max <- 24
+be_a <- be_acworth(transducer, wl = 'wl', ba = 'baro', et = 'et', inverse = FALSE)
+  
+plot(gain_wl_baro~frequency, tf_pgram, type = 'l', 
+     las = 1, lwd = 2, col = '#5696BC', ylim = c(0, 1), xlim = c(0, x_max),
+     xlab = 'Frequency (cpd)', ylab = 'Gain (wl and baro)')
+points(2, be_a, col = '#BC5696', pch = 20, cex= 2)
+plot(gain_wl_baro~frequency, tf_welch, type = 'l', 
+     las = 1, lwd = 2, col = '#BC5696', ylim = c(0, 1), xlim = c(0, x_max),
+     xlab = 'Frequency (cpd)', ylab = 'Gain (wl and baro)')
+points(2, be_a, col = '#5696BC', pch = 20, cex= 2)
+
+```
+
+One way to decrease the noise is to use Konno-Ohmachi smoothing [@konno1998ground]. This method can be slow for large datasets so we provide serial and parallel versions, _konno_ohmachi_parallel_, _konno_ohmachi_serial_.  
+
+```{r frfsmooth, eval = TRUE, echo = TRUE}
+
+tf_pgram <- 
+  tf_pgram %>% 
+  mutate(gain_wl_baro_smooth = konno_ohmachi_parallel(tf_pgram$gain_wl_baro, 
+                                                      tf_pgram$frequency, 
+                                                      b = 10))
+
+tf_welch <- 
+  tf_welch %>% 
+  mutate(gain_wl_baro_smooth = konno_ohmachi_parallel(tf_welch$gain_wl_baro, 
+                                                      tf_welch$frequency, 
+                                                      b = 10))
+```
+
+```{r frfsmoothplot, eval = TRUE, fig.height = 2.5, fig.margin = TRUE, echo = FALSE}
+par(mar = c(5,5,0.5,0.5))
+
+plot(gain_wl_baro_smooth~frequency, tf_pgram, type = 'l', 
+     las = 1, lwd = 2, col = '#5696BC', ylim = c(0, 1), xlim = c(0, x_max),
+     xlab = 'Frequency (cpd)', ylab = 'Gain (wl and baro)')
+points(2, be_a, col = '#BC5696', pch = 20, cex= 2)
+
+plot(gain_wl_baro_smooth~frequency, tf_welch, type = 'l', 
+     las = 1, lwd = 2, col = '#BC5696', ylim = c(0, 1), xlim = c(0, x_max),
+     xlab = 'Frequency (cpd)', ylab = 'Gain (wl and baro)')
+points(2, be_a, col = '#5696BC', pch = 20, cex= 2)
+
+```
+
+The frequency response methods are robust but often parameters may need to be tuned for a particular study. In particular, when calculating high frequency portions of spectra the Welch's method with many subsets can perform well.
+
+
+# References

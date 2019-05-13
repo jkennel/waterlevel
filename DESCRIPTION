@@ -1,0 +1,38 @@
+Package: waterlevel
+Type: Package
+Title: Well water level analysis tools for R
+Version: 0.0.1
+Date: 2019-04-17
+Authors@R: c(
+    person("Jonathan", "Kennel", email="jkennel@uoguelph.ca", role = c("aut", "cre")),
+    person("Beth", "Parker", role="ths"))
+Maintainer: Jonathan Kennel <jkennel@uoguelph.ca>
+Description: Well water level analysis tools for R. The current focus is on 
+    barometric efficiency.
+License: GPL-3
+Depends: 
+    R (>= 3.1.0),
+    recipes (>= 0.1.4)
+Imports: 
+    Rcpp (>= 1.0.1),
+    RcppArmadillo,
+    RcppParallel,
+    data.table,
+    tidyselect,
+    earthtide, 
+    splines,
+    tibble,
+    plotly,
+    purrr,
+    dplyr,
+    rlang,
+    fftw,
+    stats
+LinkingTo: Rcpp, RcppArmadillo, RcppParallel
+RoxygenNote: 6.1.1
+Encoding: UTF-8
+Suggests: 
+    testthat (>= 2.1.0),
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr

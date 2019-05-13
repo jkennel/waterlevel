@@ -1,0 +1,289 @@
+---
+title: "Static Barometric/Loading Efficiency Calculations"
+date: "`r Sys.Date()`"
+authors: Jonathan Kennel, Beth Parker
+vignette: >
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteIndexEntry{Static BE}
+  %\VignetteEncoding{UTF-8}
+bibliography: staticbe.bib
+link-citations: no
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  fig.ext = 'png',
+  comment = "#>"
+)
+```
+
+# Introduction
+
+This vignette covers the static barometric/loading efficiency (BE/LE) calculations in the **waterlevels** package. We will use a dataset collected from a fractured sandstone site (called _transducer_) as an example which has 1.5 month of data collected every 2 minutes and columns called _datetime_, _wl_, _et_, and _baro_ which corresponds to the date and time of the analysis, the water level pressure from a non-vented submerged transducer, the synthetic Earth tide, and the atmospheric pressure from a non-vented transducer.  We use the raw pressure measurements and the raw barometric pressure data (i.e. there is no reason to convert to an estimated water level for these analyses).
+
+
+Static barometric efficiency calculations are simple to apply but it is important to consider their applicability on a well by well basis.  
+
+In particular, these methods assume: 
+
+- That **there is no time-lag** in the response between the water levels and the barometric pressure. This response is often called the fully confined response.  If the monitoring frequency is large in comparison to the time lag this assumption may be relaxed somewhat.
+
+
+We start by loading the packages and applicable data for the loading efficiency calculation.
+
+
+```{r setup, results = 'hide', warning = FALSE, message = FALSE, echo = FALSE}
+library(waterlevel)
+library(earthtide)
+library(data.table)
+library(plotly)
+library(recipes)
+library(rlang)
+library(purrr)
+library(dplyr)
+
+data(transducer)
+```
+
+
+# First step: Plot the data
+
+```{r plotwl, echo = FALSE, fig.height = 2, fig.margin = TRUE}
+par(mar = c(2,5,0.5,0.5))
+plot(baro~datetime, transducer, type = 'l', 
+     las = 1, lwd = 2, col = '#BC7C56',
+     xlab = '', ylab = 'baro (dbar)')
+
+plot(wl~datetime, transducer, type = 'l', 
+     las = 1, lwd = 2, col = '#5696BC',
+     xlab = '', ylab = 'wl (dbar)')
+```
+
+
+## Remove a trend
+
+It is often important to remove trends from the data prior to analysis.  We will remove the trend in the water level data and the barometric pressure data using linear regression.  Some methods are more robust for handling data with complicated trends, but for this dataset, and these analyses a linear trend should suffice. We can then replot the values.  Now that we have removed the trend we can plot the water level pressure and the atmospheric pressure on the same figure for coparison.
+
+```{r trendremoval}
+data(transducer)
+transducer[, wl_detrend := lm(wl~datetime)$residuals]
+transducer[, baro_detrend := lm(baro~datetime)$residuals]
+```
+
+```{r trendremovalplot, echo = FALSE, fig.height = 4, fig.margin = TRUE}
+par(mar = c(2,5,0.5,0.5))
+plot(baro_detrend~datetime, transducer, 
+     type = 'l', las = 1,
+     col = '#BC7C56',  lwd = 2,
+     xlab = '', ylab = 'baro detrend (dbar)')
+
+points(wl_detrend~datetime, transducer, 
+       type = 'l', las = 1, 
+       col = '#5696BC', lwd = 2,
+       xlab = '', ylab = 'wl detrend (dbar)')
+```
+
+The two responses look very similar.  At this scale it appears that the water level response is a smoothed version of the barometric response with a slightly diminished magnitude.  Let's explore this more fully.
+
+
+# Calculate Barometric/Loading Efficiency
+
+There are many ways to calculate the barometric/loading efficiency.  I have tried to include as many methods as possible in the **waterlevel** package and if you know of a method I missed let me know and I will do my best to add it.
+
+## Least squares
+
+This method is just a simple wrapper for least squares regression added to be consistent with the other functions in the package. The *inverse* column is either TRUE or FALSE and deserves a few words here. The value should be set to TRUE to signify that if the independent variable (atmospheric pressure) increases the dependent variable decreases (dep).  This is typically the case for vented transducers and water level obtained via a water level tape. The result of this calculation will be a barometric efficiency.  For non-vented transducers when atmospheric pressure increases the submerge pressure reading also increases. The result of this calculation is the loading efficiency. 
+
+Summary:
+
+- Loading efficiency, when inverse == FALSE (for non-vented transducers)
+
+- Barometric efficiency, when inverse == TRUE (for vented transducers, manual measurements)
+
+```{r leastsquares}
+be_ls <- be_least_squares(dat = transducer, 
+                          dep = 'wl_detrend', 
+                          ind = 'baro_detrend',
+                          inverse = FALSE,
+                          return_model = FALSE)
+
+# This value is the BE/LE
+be_ls
+```
+
+```{r leastsquaresplot, echo = FALSE, fig.height = 4, fig.margin = TRUE}
+par(mar = c(5,5,0.5,0.5))
+plot(wl_detrend~baro_detrend, transducer,
+     pch = 20, las = 1,
+     cex = 0.05, col = '#000000',
+     asp = 1)
+grid()
+```
+
+If you are interested in the residuals from the model fit or the regression results you may specify _return_model_ = TRUE. In this method the loading efficiency is `r round(be_ls, 2)`.  
+
+
+## Least squares using first differences
+
+In the presence of background trends running the regression on first differences can minimize their effect on the regression results.  To apply this method we have one more parameter called _lag_space_ which determines how many samples are between difference calculations.  This value is important when monitoring frequency is high.  Commonly BE/LE calculates the differences based on data collected at 1 hour increments. So for this example where we collected 2 minute data that translates to a lag_space of 30
+
+
+```{r leastsquaresdiff}
+be_lsd <- be_least_squares_diff(dat = transducer, 
+                                dep = 'wl_detrend', 
+                                ind = 'baro_detrend',
+                                lag_space = 30,
+                                inverse = FALSE,
+                                return_model = FALSE)
+
+# This value is the BE/LE
+be_lsd
+```
+
+
+```{r leastsquaresdiffplot, echo = FALSE, fig.height = 4, fig.margin = TRUE}
+par(mar = c(5,5,0.5,0.5))
+plot(diff(wl_detrend, 30)~diff(baro_detrend,30), transducer,
+     pch = 20, las = 1,
+     cex = 0.05, col = '#000000',
+     ylab = 'wl differences',
+     xlab = 'baro differences',
+     asp = 1)
+grid()
+```
+
+
+The least squares value of `r round(be_ls, 2)` is not very similar least squares differences method of `r round(be_lsd, 2)`.  Why might this be? What happens if we change the *difference_space* value? 
+
+
+```{r leastsquaresdiffvec}
+# test 1 to 2880 lag_space
+difference_spaces <- 2^(0:13)
+
+be_lsds <- sapply(difference_spaces, function(x) {
+  be_least_squares_diff(dat = transducer, 
+                        dep = 'wl_detrend', 
+                        ind = 'baro_detrend',
+                        lag_space = x,
+                        inverse = FALSE,
+                        return_model = FALSE)
+})
+```
+
+```{r leastsquaresdiffvecplot, echo = FALSE, fig.height = 4, fig.margin = TRUE}
+par(mar = c(5,5,0.5,0.5))
+plot(be_lsds~difference_spaces, log = 'x', type = 'o', pch = 20)
+abline(h = be_ls, lty = 2)
+text(x = 1, y = be_ls, label = 'Least squares solution', pos = 4)
+grid()
+```
+
+So by using a different _lag_space_ we can get agreement between the two methods. Let's see how other methods perform.
+
+
+
+# -@Clark1967
+
+This function has the same arguments as _be_least_squares_diff_.  This method will likely suffer from a similar problem as we saw with _be_least_squares_diff_.  Let's use differences of 1 day as this appeared to give consistent results to the original least squares method.
+
+```{r clarks}
+be_c <- be_clark(dat = transducer, 
+                 dep = 'wl_detrend', 
+                 ind = 'baro_detrend',
+                 lag_space = 720,
+                 inverse = FALSE,
+                 return_model = FALSE)
+
+be_c
+```
+
+
+# -@Rahi2013
+
+The Rahi method is similar to the Clark method but has a magnitude check in addition to the sign check that Clark's method does.  The arguments are the same for the current implementation except we do not have a _return_model_ option.
+
+```{r rahi}
+be_r <- be_rahi(dat = transducer, 
+                dep = 'wl_detrend', 
+                ind = 'baro_detrend',
+                lag_space = 720,
+                inverse = FALSE)
+
+be_r
+```
+
+# Ratio method [@Gonthier2007]
+
+This method calculates the ratio for each difference.  Then filters them based on the magnitude of the barometric pressure change (_quant_), and finally summarizes the data using _stat_.  We will calculate the one-day differences, select those having the largest barometric pressure changes (top 10 percentile), and take the median of the resulting ratios.
+
+```{r ratio}
+be_rat <- be_ratio(dat = transducer, 
+                   dep = 'wl_detrend', 
+                   ind = 'baro_detrend',
+                   lag_space = 720,
+                   quant = 0.9,
+                   stat = median,
+                   inverse = FALSE)
+be_rat
+```
+
+# High-low method
+
+The high-low method compares water level changes to barometric pressure changes for different time periods.  We specify the column name that holds the _time_ and a _time_group_ which is the size of the time interval in seconds.  Here we calculate the LE every day for our dataset.  This method will tend to overestimate the BE/LE. 
+
+
+```{r highlow}
+be_hl <- be_high_low(dat = transducer, 
+                     dep = 'wl_detrend', 
+                     ind = 'baro_detrend',
+                     time = 'datetime',
+                     time_group = 86400*7)
+
+head(be_hl)
+```
+
+
+# -@Smith2013
+
+I like this method for data where there is a complex trend.  It uses informed judgement to fit the best BE/LE value. We supply different values of BE which are then used to remove the barometric signal from the data.  The goal is to have a smooth curve (or a result that matches our expectations) after the barometric pressure is removed. 
+
+```{r smith, eval = FALSE}
+# This function is not evaluated as it makes a large vignette file.
+# Please run locally to see the interactive example
+
+library(waterlevel)
+data("transducer")
+be_visual(transducer,
+          dep = 'wl',
+          ind = 'baro',
+          time = 'datetime',
+          be_tests = seq(0.6, 1.0, 0.05),
+          inverse = FALSE,
+          subsample = TRUE)
+```
+
+What value do you estimate for LE? How certain are you? Why is there stucture in the residuals? One reason is that this data is from a semi-confined well with non-negligible well-bore storage and we have violated the assumption that there is no time lag in the response.  A better technique for this well would have been to use barometric/loading response functions.
+
+
+# Acworth method 
+
+@Acworth2008
+
+@Acworth2016
+
+@Acworth2017
+
+@Rau2018]
+
+This method uses frequency domain values and includes the Earth tide response.  The BE/LE is calculated by using ratio of the barometric pressure harmonic (S~2~) and the water level harmonic (S~2~) corrected for Earth tides.  It is meant to be applied to confined wells. This value is also tied to the semi-diurnal frequency and care needs to be taken on it's interpretation in the same way the time based static barometric efficiency calculations are limited.  See the [response function vignette](responsefunctions.html) for a more complete view of the water level response.
+
+
+```{r acworthprep, echo = TRUE}
+be_a <- be_acworth(transducer, wl = 'wl', ba = 'baro', et = 'et', 
+                   inverse = FALSE)
+
+be_a
+```
+
+# References

@@ -1,0 +1,222 @@
+---
+title: "Synthetic example"
+date: "`r Sys.Date()`"
+authors: Jonathan Kennel, Beth Parker
+vignette: >
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteIndexEntry{Synthetic example}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  fig.ext = 'png',
+  comment = "#>"
+)
+library(waterlevel)
+library(earthtide)
+library(data.table)
+library(plotly)
+library(rlang)
+library(purrr)
+library(dplyr)
+library(recipes)
+```
+
+# Introduction
+
+To test the efficiency of different methods we will create a response function, apply it to some barometric pressure data to generate a synthetic water level response.
+
+## Response function 
+
+This is the function we will try to recreate!  It is the combination of three exponentials of different lengths:
+
+- 60 second (negative)
+
+- 600 second (negative)
+
+- 43201 second (positive)
+
+```{r response, fig.height = 6, warning = FALSE}
+exp1 <- -exp(-seq(0.01, 8, length.out = 60))
+exp2 <- -exp(-seq(0.01, 8, length.out = 43201))
+exp3 <- exp(-seq(0.01, 8, length.out = 600))
+
+exp1 <- exp1 /  sum(exp1)
+exp2 <- exp2 /  sum(exp2)
+exp3 <- exp3 / -sum(exp3)
+
+exp1 <- c(exp1, rep(0.0, length(exp2) - length(exp1)))
+exp3 <- c(exp3, rep(0.0, length(exp2) - length(exp3)))
+kern <- rev(exp1 + exp2 + exp3)
+
+resp_fun <- cumsum(rev(kern))*0.5
+```
+
+```{r responseplot, fig.height = 3, fig.width=4, echo = FALSE}
+par(mar = c(5,5,0.5,0.5))
+
+lag_resp_fun <- 0:43200
+plot(resp_fun~lag_resp_fun, 
+     type = 'l', las = 1,
+     log = 'x', col = '#96BC56', lwd = 3,
+     xlab = 'Time lag', ylab = 'Cumulative response')
+```
+
+
+## Barometric pressure
+
+We can get a barometric response  with the _synthetic_ function.
+
+## Synthetic water levels
+
+Convolution of barometric pressure data and response function.  Water levels have a dampened appearance and are lagged slightly in relation to the barometric response.  This is commonly observed at field sites.  There is no noise in this example so we hope to perfectly recover the response function.
+
+
+```{r synthetic, fig.height = 4, fig.width=6}
+dat <- synthetic(sd_noise = 0e-2,
+                 sd_noise_trend = 0e-12,
+                 n = 4*86400,
+                 linear_trend = 0e-12,
+                 seed = 1,
+                 baro_kernel = kern)[, list(datetime, baro, wl)]
+
+dat <- dat[1:(2.5*86400)]
+dat[, baro := baro - mean(baro, na.rm=TRUE)]
+dat[, wl := wl - mean(wl, na.rm=TRUE)]
+```
+
+```{r syntheticplot, fig.height = 4, fig.width=6, echo = FALSE}
+
+par(mar = c(5,5,0.5,0.5))
+plot(baro~datetime, dat, type = 'l', 
+     las = 1, lwd = 2, col = '#BC5696',
+     xlab = '', ylab = 'pressure (dbar)')
+
+points(wl~datetime, dat, type = 'l', 
+     lwd = 2, col = '#5696BC')
+```
+
+
+## Regular lag method
+
+Regular lag methods can generate large regression matrices, and therefore, we will subset our data prior to analysis. We start with one second data, but will subset to 60 seconds.  The matrix size will be 
+
+```{r regular}
+dt <- 60
+
+dat_sub <- dat[seq(1, nrow(dat), dt)]
+
+ba_lags <- seq(0, (43200+dt)/dt, 1)
+
+rec <- recipe(wl~., dat_sub) %>%                          
+  step_lag_matrix(baro, lag = ba_lags) %>%                   
+  prep() %>%                                                
+  portion()
+
+dim(rec)
+```
+
+
+### Do regression
+
+What if we only had data every 30 minutes?
+
+```{r regular_regress, fig.height = 4, fig.width = 6, echo = FALSE, warning = FALSE}
+fit <- lm(outcome~lag_matrix, rec,
+          x = FALSE, y = FALSE, tol = 1e-50, 
+          na.action = na.exclude)
+
+summarize_lm(fit)
+
+resp <- response_from_fit(fit)
+resp$x <- resp$x * dt
+resp$x[1] <- 0.1
+
+par(mar = c(5,5,0.5,0.5))
+
+plot(resp_fun~lag_resp_fun, 
+     type = 'l', las = 1,
+     log = 'x', col = '#96BC56', lwd = 3,
+     xlab = 'Time lag', ylab = 'Cumulative response')
+
+points(value~x, resp, type='l', lwd = 2, pch = 20, col = '#5696BC')
+```
+
+
+## Irregular lag method
+
+We won't subset in this case. We will use fewer regressors but have many more observations. These results are even better.
+
+
+```{r irregular, fig.height = 6, warning = FALSE}
+ba_lags <- log_lags(251, max_time_lag = 43201)
+
+rec <- recipe(wl~., dat) %>%                          
+  step_lag_matrix(baro, lag = ba_lags) %>%                   
+  prep() %>%                                                
+  portion()
+
+dim(rec)
+```
+
+
+```{r irregular_regress, fig.height = 4, fig.width = 6, echo = FALSE, warning = FALSE}
+fit <- lm(outcome~lag_matrix, rec,
+          x = FALSE, y = FALSE, tol = 1e-50, 
+          na.action = na.exclude)
+
+summarize_lm(fit)
+
+resp <- response_from_fit(fit)
+resp$x[1] <- 0.1
+
+par(mar = c(5,5,0.5,0.5))
+
+plot(resp_fun~lag_resp_fun, 
+     type = 'l', las = 1,
+     log = 'x', col = '#96BC56', lwd = 3,
+     xlab = 'Time lag', ylab = 'Cumulative response')
+
+points(value~x, resp, type='l', lwd = 2, pch = 20, col = '#5696BC')
+```
+
+
+## Distributed lag method
+
+We won't subset in this case and we will only use 15 regressors.
+
+
+```{r dist, fig.height = 6}
+ba_lags <- log_lags(18, max_time_lag = 43201)
+
+rec <- recipe(wl~., dat) %>%                          
+  step_distributed_lag(baro, knots = ba_lags) %>%                   
+  prep() %>%                                                
+  portion()
+
+dim(rec)
+```
+
+```{r dist_regress, fig.height = 4, fig.width = 6, echo = FALSE, warning = FALSE}
+fit <- lm(outcome~distributed_lag, rec,
+          x = FALSE, y = FALSE, tol = 1e-50, 
+          na.action = na.exclude)
+
+summarize_lm(fit)
+
+resp <- response_from_fit(fit)
+resp$x[1] <- 0.1
+
+par(mar = c(5,5,0.5,0.5))
+
+plot(resp_fun~lag_resp_fun, 
+     type = 'l', las = 1,
+     log = 'x', col = '#96BC56', lwd = 3,
+     xlab = 'Time lag', ylab = 'Cumulative response')
+
+points(value~x, resp, type='l', lwd = 2, pch = 20, col = '#5696BC')
+```
+
+
