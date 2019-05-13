@@ -1,5 +1,6 @@
 ---
 output: github_document
+always_allow_html: yes
 ---
 
 
@@ -20,23 +21,56 @@ cat('# waterlevel',
 )
 ```
 
-The **waterlevel** package is designed to simplify the analysis of well water level data **R**.  Currently the focus is on barometric/loading efficiency.
+The **waterlevel** package is designed to simplify the analysis of well water level data in **R**.  Currently the focus is on barometric/loading (BE/LE) efficiency, but the package is under active development..
 
-# Installation
-```{r echo=FALSE, results="hide", message=FALSE}
+## Installation
+
+```{r echo=TRUE, eval = FALSE}
 remotes::install_github("jkennel/waterlevel")
 ```
 
+## Static Barometric/Loading efficiency
+
+```{r echo=TRUE, include = FALSE}
+library(waterlevel)
+library(data.table)
+library(splines)
+data(transducer)
+```
+
+See the package vignettes for examples the methods.
+
+### Static BE/LE methods 
+
+- be_clark
+- be_rahi
+- be_least_squares
+- be_acworth
+- be_high_low
+- be_ratio
+- be_visual
+
+### Response methods 
+
+- Barometric response functions
+    - Regular lags
+    - Irregular lags
+    - Distributed lags
+- Harmonic analysis 
+    - Specified frequencies 
+    - Specified Earth tide constituents *earthtide* package
+- Frequency response function
 
 
 ## Future work ##
 
-Decrease dependencies
-fft methods
-Add parameter estimation methods
-Add analysis methods (slug testing, pumping tests)
-Increase test coverage
-Increase memory and computational efficiency
-Gap filling methods
-
+- Decrease dependencies
+- fft methods
+- Add parameter estimation methods
+- Add analysis methods (slug testing, pumping tests)
+- Increase test coverage
+- Increase memory and computational efficiency
+- Gap filling methods (interpolation)
+- Add option to use parallel non-FFT distributed lag method
+- Distribute lag with subset
 
