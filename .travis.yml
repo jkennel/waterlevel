@@ -8,5 +8,7 @@ r_packages:
   - covr
   - recipes
   - fftw
+r_github_packages:
+  - jkennel/earthtide
 after_success:
   - Rscript -e 'covr::codecov()'

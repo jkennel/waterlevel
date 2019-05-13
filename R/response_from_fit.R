@@ -7,6 +7,7 @@
 #' @importFrom utils tail
 #' @importFrom data.table as.data.table data.table
 #' @importFrom stats coef
+#' @importFrom earthtide get_main_frequency
 #' 
 #' @export
 #' 
