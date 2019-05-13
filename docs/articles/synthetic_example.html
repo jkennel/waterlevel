@@ -113,8 +113,6 @@ exp3 &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocume
 kern &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/rev">rev</a></span>(exp1 <span class="op">+</span><span class="st"> </span>exp2 <span class="op">+</span><span class="st"> </span>exp3)
 
 resp_fun &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cumsum">cumsum</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/rev">rev</a></span>(kern))<span class="op">*</span><span class="fl">0.5</span></code></pre></div>
-<pre><code>#&gt; Warning in xy.coords(x, y, xlabel, ylabel, log): 1 x value &lt;= 0 omitted
-#&gt; from logarithmic plot</code></pre>
 <p><img src="synthetic_example_files/figure-html/responseplot-1.png" width="384"></p>
 </div>
 <div id="barometric-pressure" class="section level2">
@@ -128,14 +126,14 @@ resp_fun &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdo
 <p>Convolution of barometric pressure data and response function. Water levels have a dampened appearance and are lagged slightly in relation to the barometric response. This is commonly observed at field sites. There is no noise in this example so we hope to perfectly recover the response function.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dat &lt;-<span class="st"> </span><span class="kw"><a href="../reference/synthetic.html">synthetic</a></span>(<span class="dt">sd_noise =</span> <span class="fl">0e-2</span>,
                  <span class="dt">sd_noise_trend =</span> <span class="fl">0e-12</span>,
-                 <span class="dt">n =</span> <span class="dv">4</span><span class="op">*</span><span class="dv">86400</span>,
+                 <span class="dt">n =</span> <span class="dv">4</span> <span class="op">*</span><span class="st"> </span><span class="dv">86400</span>,
                  <span class="dt">linear_trend =</span> <span class="fl">0e-12</span>,
                  <span class="dt">seed =</span> <span class="dv">1</span>,
                  <span class="dt">baro_kernel =</span> kern)[, <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(datetime, baro, wl)]
 
-dat &lt;-<span class="st"> </span>dat[<span class="dv">1</span><span class="op">:</span>(<span class="fl">2.5</span><span class="op">*</span><span class="dv">86400</span>)]
-dat[, baro <span class="op">:</span><span class="er">=</span><span class="st"> </span>baro <span class="op">-</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/mean">mean</a></span>(baro, <span class="dt">na.rm=</span><span class="ot">TRUE</span>)]
-dat[, wl <span class="op">:</span><span class="er">=</span><span class="st"> </span>wl <span class="op">-</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/mean">mean</a></span>(wl, <span class="dt">na.rm=</span><span class="ot">TRUE</span>)]</code></pre></div>
+dat &lt;-<span class="st"> </span>dat[<span class="dv">1</span><span class="op">:</span>(<span class="fl">2.5</span> <span class="op">*</span><span class="st"> </span><span class="dv">86400</span>)]
+dat[, baro <span class="op">:</span><span class="er">=</span><span class="st"> </span>baro <span class="op">-</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/mean">mean</a></span>(baro, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>)]
+dat[, wl <span class="op">:</span><span class="er">=</span><span class="st"> </span>wl <span class="op">-</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/mean">mean</a></span>(wl, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>)]</code></pre></div>
 <p><img src="synthetic_example_files/figure-html/syntheticplot-1.png" width="576"></p>
 </div>
 <div id="regular-lag-method" class="section level2">
@@ -146,7 +144,7 @@ dat[, wl <span class="op">:</span><span class="er">=</span><span class="st"> </s
 
 dat_sub &lt;-<span class="st"> </span>dat[<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/seq">seq</a></span>(<span class="dv">1</span>, <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/nrow">nrow</a></span>(dat), dt)]
 
-ba_lags &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/seq">seq</a></span>(<span class="dv">0</span>, (<span class="dv">43200</span><span class="op">+</span>dt)<span class="op">/</span>dt, <span class="dv">1</span>)
+ba_lags &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/seq">seq</a></span>(<span class="dv">0</span>, (<span class="dv">43200</span><span class="op">+</span>dt) <span class="op">/</span><span class="st"> </span>dt, <span class="dv">1</span>)
 
 rec &lt;-<span class="st"> </span><span class="kw">recipe</span>(wl<span class="op">~</span>., dat_sub) <span class="op">%&gt;%</span><span class="st">                          </span>
 <span class="st">  </span><span class="kw"><a href="../reference/step_lag_matrix.html">step_lag_matrix</a></span>(baro, <span class="dt">lag =</span> ba_lags) <span class="op">%&gt;%</span><span class="st">                   </span>
@@ -159,10 +157,8 @@ rec &lt;-<span class="st"> </span><span class="kw">recipe</span>(wl<span class="
 <h3 class="hasAnchor">
 <a href="#do-regression" class="anchor"></a>Do regression</h3>
 <p>What if we only had data every 30 minutes?</p>
-<pre><code>#&gt;    n_obs n_coef   df        sigma r_squared adj_r_squared       AIC
-#&gt; 1:  2879    723 2156 5.316373e-05  0.999997      0.999996 -47885.33
-#&gt;          BIC   logLik
-#&gt; 1: -43566.53 24666.67</code></pre>
+<pre><code>#&gt;    n_obs n_coef   df        sigma r_squared       AIC       BIC   logLik
+#&gt; 1:  2879    723 2156 5.316373e-05  0.999997 -47885.33 -43566.53 24666.67</code></pre>
 <p><img src="synthetic_example_files/figure-html/regular_regress-1.png" width="576"></p>
 </div>
 </div>
@@ -179,10 +175,8 @@ rec &lt;-<span class="st"> </span><span class="kw">recipe</span>(wl<span class="
 
 <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/dim">dim</a></span>(rec)
 <span class="co">#&gt; [1] 216000      3</span></code></pre></div>
-<pre><code>#&gt;     n_obs n_coef     df        sigma r_squared adj_r_squared      AIC
-#&gt; 1: 172800    201 172599 2.341373e-05 0.9999992     0.9999992 -3194264
-#&gt;         BIC  logLik
-#&gt; 1: -3192232 1597334</code></pre>
+<pre><code>#&gt;     n_obs n_coef     df        sigma r_squared      AIC      BIC  logLik
+#&gt; 1: 172800    201 172599 2.341373e-05 0.9999992 -3194264 -3192232 1597334</code></pre>
 <p><img src="synthetic_example_files/figure-html/irregular_regress-1.png" width="576"></p>
 </div>
 <div id="distributed-lag-method" class="section level2">
@@ -198,10 +192,8 @@ rec &lt;-<span class="st"> </span><span class="kw">recipe</span>(wl<span class="
 
 <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/dim">dim</a></span>(rec)
 <span class="co">#&gt; [1] 216000      3</span></code></pre></div>
-<pre><code>#&gt;     n_obs n_coef     df        sigma r_squared adj_r_squared      AIC
-#&gt; 1: 172800     19 172781 5.672424e-06         1             1 -3684405
-#&gt;         BIC  logLik
-#&gt; 1: -3684204 1842223</code></pre>
+<pre><code>#&gt;     n_obs n_coef     df        sigma r_squared      AIC      BIC  logLik
+#&gt; 1: 172800     19 172781 5.672424e-06         1 -3684405 -3684204 1842223</code></pre>
 <p><img src="synthetic_example_files/figure-html/dist_regress-1.png" width="576"></p>
 </div>
 </div>

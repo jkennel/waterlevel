@@ -174,18 +174,16 @@ dat &lt;-<span class="st"> </span><span class="kw">recipe</span>(wl<span class="
 <a href="#fit-the-model" class="anchor"></a>Fit the model:</h3>
 <p>We can fit the model with <em>lm</em> and the fitting method is the same for each of the recipes so we will not repeat that code in the following examples.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">
-fit &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/lm">lm</a></span>(outcome<span class="op">~</span>lag_matrix_baro<span class="op">+</span>lag_matrix_et <span class="op">+</span><span class="st"> </span>splines, dat,      <span class="co"># fit model </span>
+fit &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/lm">lm</a></span>(outcome<span class="op">~</span>lag_matrix_baro <span class="op">+</span><span class="st"> </span>lag_matrix_et <span class="op">+</span><span class="st"> </span>splines, dat,      <span class="co"># fit model </span>
           <span class="dt">x =</span> <span class="ot">FALSE</span>, <span class="dt">y =</span> <span class="ot">FALSE</span>, <span class="dt">tol =</span> <span class="fl">1e-50</span>, 
           <span class="dt">na.action =</span> na.exclude)
 
 dat &lt;-<span class="st"> </span>transducer <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">mutate</span>(<span class="dt">residuals =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/residuals">residuals</a></span>(fit))         <span class="co"># add residuals</span>
 
 resp &lt;-<span class="st"> </span><span class="kw"><a href="../reference/response_from_fit.html">response_from_fit</a></span>(fit)                           <span class="co"># get the baro response</span></code></pre></div>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="../reference/summarize_lm.html">summarize_lm</a></span>(fit)
-<span class="co">#&gt;    n_obs n_coef    df        sigma r_squared adj_r_squared       AIC</span>
-<span class="co">#&gt; 1: 36361    216 36145 0.0003069872 0.9999527     0.9999524 -484821.4</span>
-<span class="co">#&gt;          BIC   logLik</span>
-<span class="co">#&gt; 1: -482976.6 242627.7</span></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="../reference/summarize_lm.html">summarize_lm</a></span>(fit)[, <span class="op">-</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">'adj_r_squared'</span>), with =<span class="st"> </span><span class="ot">FALSE</span>]
+<span class="co">#&gt;    n_obs n_coef    df        sigma r_squared       AIC       BIC   logLik</span>
+<span class="co">#&gt; 1: 36361    216 36145 0.0003069872 0.9999527 -484821.4 -482976.6 242627.7</span></code></pre></div>
 <p><img src="responsefunctions_files/figure-html/solvesimpleplot-1.png" width="412.8"><img src="responsefunctions_files/figure-html/solvesimpleplot-2.png" width="412.8"></p>
 <hr>
 </div>
@@ -203,10 +201,8 @@ dat &lt;-<span class="st"> </span><span class="kw">recipe</span>(wl<span class="
 <span class="st">  </span><span class="kw">step_ns</span>(datetime_num, <span class="dt">deg_free =</span> ns_df, <span class="dt">role =</span> <span class="st">'splines'</span>) <span class="op">%&gt;%</span><span class="st">                        </span>
 <span class="st">  </span><span class="kw">prep</span>() <span class="op">%&gt;%</span><span class="st">                                                 </span>
 <span class="st">  </span><span class="kw"><a href="../reference/portion.html">portion</a></span>()                                                    </code></pre></div>
-<pre><code>#&gt;    n_obs n_coef    df        sigma r_squared adj_r_squared       AIC
-#&gt; 1: 36362     49 36313 0.0003061451 0.9999527     0.9999527 -485200.9
-#&gt;          BIC   logLik
-#&gt; 1: -484775.8 242650.4</code></pre>
+<pre><code>#&gt;    n_obs n_coef    df        sigma r_squared       AIC       BIC   logLik
+#&gt; 1: 36362     49 36313 0.0003061451 0.9999527 -485200.9 -484775.8 242650.4</code></pre>
 <p><img src="responsefunctions_files/figure-html/solvedistplot-1.png" width="412.8"><img src="responsefunctions_files/figure-html/solvedistplot-2.png" width="412.8"></p>
 <hr>
 </div>
@@ -264,10 +260,8 @@ dat &lt;-<span class="st"> </span><span class="kw">recipe</span>(wl<span class="
 <span class="st">  </span><span class="kw">step_ns</span>(datetime_num, <span class="dt">deg_free =</span> ns_df, <span class="dt">role =</span> <span class="st">'splines'</span>) <span class="op">%&gt;%</span><span class="st">                        </span>
 <span class="st">  </span><span class="kw">prep</span>() <span class="op">%&gt;%</span><span class="st">                                                 </span>
 <span class="st">  </span><span class="kw"><a href="../reference/portion.html">portion</a></span>()                                                    </code></pre></div>
-<pre><code>#&gt;    n_obs n_coef    df        sigma r_squared adj_r_squared     AIC
-#&gt; 1: 36362     60 36302 0.0003014908 0.9999542     0.9999541 -486304
-#&gt;          BIC logLik
-#&gt; 1: -485785.4 243213</code></pre>
+<pre><code>#&gt;    n_obs n_coef    df        sigma r_squared     AIC       BIC logLik
+#&gt; 1: 36362     60 36302 0.0003014908 0.9999542 -486304 -485785.4 243213</code></pre>
 <p><img src="responsefunctions_files/figure-html/solveharm2-1.png" width="412.8"><img src="responsefunctions_files/figure-html/solveharm2-2.png" width="412.8"></p>
 <p><img src="responsefunctions_files/figure-html/solveharmet-1.png" width="412.8"><img src="responsefunctions_files/figure-html/solveharmet-2.png" width="412.8"></p>
 <p>The three models tend to perform similarly for this well. However, I would choose the last model as it has the fewest, regressors, the lowest residual standard error, and provides useful Earth tide amplitude and phase information. This well had a generally small Earth tide component and it is hardly visible in the original wl pressure time series, however, we seem to be able achieve reasonable approximation of the theoretical amplitudes.</p>
