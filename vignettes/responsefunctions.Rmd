@@ -211,7 +211,7 @@ fit_dist <- lm(outcome~distributed_lag + lag_matrix + splines, dat,
           x = FALSE, y = FALSE, tol = 1e-50, 
           na.action = na.exclude)
 
-dat <- transducer %>% mutate(residuals = residuals(fit))         # add residuals
+dat <- transducer %>% mutate(residuals = residuals(fit_dist))    # add residuals
 
 resp_dist <- response_from_fit(fit_dist)                 # get the baro response
 
@@ -222,7 +222,7 @@ summarize_lm(fit_dist)[, -c('adj_r_squared'), with = FALSE]
 ```
 
 ```{r solvedistplot, echo = FALSE, fig.width = 4.3, fig.height = 3, hold = TRUE}
-par(mar = c(5,6,0.5,0.5), mgp = c(3.5, 0.5, 0))
+par(mar = c(5, 6, 0.5, 0.5), mgp = c(3.5, 0.5, 0))
 
 plot(residuals~datetime, dat, type = 'l', 
      las = 1, lwd = 2, col = '#5696BC',
