@@ -61,7 +61,7 @@ get_distributed_lag <- function(co, nm) {
   
   
   nums <- lapply(strsplit(nm, '_'), function(x) {
-    as.numeric(na.omit(as.numeric(x)))[1]
+    suppressWarnings(as.numeric(na.omit(as.numeric(x)))[1])
   })
   
   lags <- as.data.table(do.call(rbind, nums))
@@ -84,7 +84,7 @@ get_lag_matrix <- function(co, nm) {
   type = NULL
   
   nums <- lapply(strsplit(nm, '_'), function(x) {
-    as.numeric(na.omit(as.numeric(x)))[1]
+    suppressWarnings(as.numeric(na.omit(as.numeric(x)))[1])
   })
   
   lags <- as.data.table(do.call(rbind, nums))
@@ -99,7 +99,7 @@ get_lag_matrix <- function(co, nm) {
 get_harmonic <- function(co, nm) {
   
   nums <- lapply(strsplit(nm, '_'), function(x) {
-    as.numeric(na.omit(as.numeric(x)))[1]
+    suppressWarnings(as.numeric(na.omit(as.numeric(x)))[1])
   })
   
   ranges <- unique(as.data.table(do.call(rbind,nums)))
@@ -119,7 +119,7 @@ get_harmonic <- function(co, nm) {
 get_earthtide <- function(co, nm) {
   
   nums <- lapply(strsplit(nm, '_'), function(x) {
-    as.numeric(na.omit(as.numeric(x)))[1:2]
+    suppressWarnings(as.numeric(na.omit(as.numeric(x)))[1:2])
   })
   
   ranges <- unique(do.call(rbind,nums))

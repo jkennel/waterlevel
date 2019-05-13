@@ -248,15 +248,11 @@ head(be_hl)
 
 I like this method for data where there is a complex trend.  It uses informed judgement to fit the best BE/LE value. We supply different values of BE which are then used to remove the barometric signal from the data.  The goal is to have a smooth curve (or a result that matches our expectations) after the barometric pressure is removed. 
 
-```{r smith, eval = FALSE}
-# This function is not evaluated as it makes a large vignette file.
-# Please run locally to see the interactive example
+```{r smith, eval = TRUE}
 
-library(waterlevel)
-data("transducer")
-be_visual(transducer,
-          dep = 'wl',
-          ind = 'baro',
+be_visual(transducer[seq(1, nrow(transducer), 90)],
+          dep = 'wl_detrend',
+          ind = 'baro_detrend',
           time = 'datetime',
           be_tests = seq(0.6, 1.0, 0.05),
           inverse = FALSE,

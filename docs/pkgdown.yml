@@ -1,0 +1,8 @@
+pandoc: 1.19.2.1
+pkgdown: 1.3.0
+pkgdown_sha: ~
+articles:
+  responsefunctions: responsefunctions.html
+  staticbe: staticbe.html
+  synthetic_example: synthetic_example.html
+
