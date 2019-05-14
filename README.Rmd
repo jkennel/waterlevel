@@ -13,6 +13,7 @@ library("badger")
 ```{r, echo = FALSE, results='asis'}
 
 cat('# waterlevel',
+  '[![DOI](https://zenodo.org/badge/186485037.svg)](https://zenodo.org/badge/latestdoi/186485037)',
   '[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)',
   badge_travis("jkennel/waterlevel"),
   '[![Coverage Status](https://img.shields.io/codecov/c/github/jkennel/waterlevel/master.svg)](https://codecov.io/github/jkennel/waterlevel?branch=master)',
