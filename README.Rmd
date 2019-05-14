@@ -29,6 +29,12 @@ The **waterlevel** package is designed to simplify the analysis of well water le
 remotes::install_github("jkennel/waterlevel")
 ```
 
+Also, make sure you are using the development version of the *earthtide* package.
+
+```{r echo=TRUE, eval = FALSE}
+remotes::install_github("jkennel/earthtide")
+```
+
 ## Static Barometric/Loading efficiency
 
 ```{r echo=TRUE, include = FALSE}

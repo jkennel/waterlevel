@@ -19,7 +19,7 @@ Imports:
     RcppParallel,
     data.table,
     tidyselect,
-    earthtide, 
+    earthtide(>= 0.0.7), 
     splines,
     tibble,
     plotly,
