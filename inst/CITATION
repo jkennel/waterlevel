@@ -1,0 +1,11 @@
+year <- sub("-.*", "", meta$Date)
+note <- sprintf("R package version %s", meta$Version)
+
+bibentry(bibtype = "Manual",
+         title = "{waterlevel}: Well water level analysis tools",
+         author = c(person("Jonathan", "Kennel"),
+                    person("Beth", "Parker")),
+         year = year,
+         note = note,
+         doi = "10.5281/zenodo.2803068",
+         url = "https://github.com/jkennel/waterlevel")
