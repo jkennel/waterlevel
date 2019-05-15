@@ -34,3 +34,14 @@
 #' utils::data(wipp30)
 'wipp30'
 
+
+#' @title baro_kernel
+#' 
+#' @description Example barometric response function kernel for testing.
+#' 
+#' @format A \code{numeric vector} 
+#' 
+#' @examples
+#' utils::data(baro_kern)
+'baro_kernel'
+
