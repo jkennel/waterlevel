@@ -2,7 +2,7 @@ year <- sub("-.*", "", meta$Date)
 note <- sprintf("R package version %s", meta$Version)
 
 bibentry(bibtype = "Manual",
-         title = "{waterlevel}: Well water level analysis tools",
+         title = "{waterlevel}: Well Water Level Analysis Tools",
          author = c(person("Jonathan", "Kennel"),
                     person("Beth", "Parker")),
          year = year,

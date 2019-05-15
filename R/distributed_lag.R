@@ -1,5 +1,9 @@
 #' distributed_lag
 #'
+#' Depending on the vector to lag and the maximum knot, distributed_lag will 
+#' either use an FFT (no NA and large maximum knot), or a parallel method 
+#' (NA, or small maximum knot).
+#' 
 #' @param x numeric vector to lag
 #' @param knots specific knots for the lagging process
 #' @param spline_fun spline function to use i.e. splines::ns, splines::bs
@@ -7,9 +11,14 @@
 #'
 #' @return matrix with distributed lag terms
 #' 
+#' @importFrom splines ns
+#' 
 #' @export
-#'
-distributed_lag <- function(x, knots, spline_fun, lag_name = '') {
+#' 
+distributed_lag <- function(x, 
+                            knots, 
+                            spline_fun = ns,
+                            lag_name = '') {
 
   # generate basis functions
   max_knot <- max(knots)
@@ -22,8 +31,14 @@ distributed_lag <- function(x, knots, spline_fun, lag_name = '') {
                           Boundary.knots = range(knots),
                           intercept = TRUE)
   
-  # convolution
-  dist_lag_mat <- cross_basis_fft(as.matrix(x), basis_lag)
+  # convolution - fft for large number of lags, otherwise use parallel version
+  if(any(is.na(x)) | max_knot < 5000) {
+    dist_lag_mat <- distributed_lag_parallel(rev(x), 
+                                             t(as.matrix(basis_lag)), 
+                                             max_knot - 1L)
+  } else {
+    dist_lag_mat <- cross_basis_fft(as.matrix(x), basis_lag)
+  }
   
   colnames(dist_lag_mat) <- paste0("distributed_lag_", knots, '_', lag_name)
     
