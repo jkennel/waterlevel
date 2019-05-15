@@ -35,7 +35,7 @@ distributed_lag <- function(x,
   if(any(is.na(x)) | max_knot < 5000) {
     dist_lag_mat <- distributed_lag_parallel(rev(x), 
                                              t(as.matrix(basis_lag)), 
-                                             max_knot - 1L)
+                                             max_knot)
   } else {
     dist_lag_mat <- cross_basis_fft(as.matrix(x), basis_lag)
   }

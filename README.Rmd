@@ -78,6 +78,5 @@ See the package vignettes for examples the methods.
 - Increase test coverage
 - Increase memory and computational efficiency
 - Gap filling methods (interpolation)
-- Add option to use parallel non-FFT distributed lag method
 - Distribute lag with subset
 
