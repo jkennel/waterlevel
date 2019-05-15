@@ -157,6 +157,11 @@ bake.step_lag_matrix <- function(object, new_data, ...) {
                           object$n_subset,
                           object$n_shift,
                           object$columns)
+    grid <- expand.grid(col = object$columns, lag_val = object$lag,
+                        stringsAsFactors = FALSE)
+    newname <- paste0(object$prefix, grid$lag_val, "_", grid$col)
+    newname <- gsub('-', 'n', newname)
+    colnames(lag_mat) <- newname
     return(bind_cols(new_data[inds,], as_tibble(lag_mat)))
   }
 

@@ -8,6 +8,7 @@
 #' @param ... arguments to pass to method
 #'
 #' @return transfer function, gain and phase, coherency
+#' 
 #' @export
 #'
 transfer_fun <- function(dat, vars, time = 'datetime', method = 'spec_pgram', ...) {

@@ -40,7 +40,6 @@ be_visual_data <- function(dat,
   corrected <- NULL
   be <- NULL
   
-  
   dat_tmp <- copy(dat)
   
   
@@ -92,8 +91,15 @@ be_visual_plot <- function(dat,
                            subsample = TRUE){
   
   
-  if (time != 'datetime') {
-    dat[, datetime := get(time)]
+  if (time == 'time'){
+    dat[, datetime := time]
+  } else if (time != 'time') {
+    if (time == 'datetime') {
+    } else if ('time' %in% names(dat)) {
+      dat <- dat[, -c('time'), with = FALSE]
+    } else {
+      dat[, datetime := get(time)]
+    }
   }
   
   

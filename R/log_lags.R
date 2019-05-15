@@ -16,8 +16,14 @@
 #' log_lags(12, 86401)
 log_lags <- function(n, max_time_lag) {
   
-  sort(unique(round(10^seq(0,
-                           log10(max_time_lag),
-                           length.out = n)-1)))
+  if(n > max_time_lag) {
+    warning('The number of lags is greater than the maximum time lag')
+    return(1:max_time_lag - 1)
+  } else {
+    
+    return(sort(unique(round(10^seq(0,
+                                    log10(max_time_lag),
+                                    length.out = n) - 1))))
+  }
   
 }

@@ -23,7 +23,11 @@ distributed_lag <- function(x,
   # generate basis functions
   max_knot <- max(knots)
   n_knots  <- length(knots)
+  x_len <- length(as.numeric(x))
   
+  if(max_knot > x_len) {
+    stop('The maximum knot cannot be larger than the number of elements in x')
+  }
   
   # generate basis lag
   basis_lag <- spline_fun(min(knots):max_knot,
@@ -69,6 +73,15 @@ convolve_fft <- function(x, y)
 }
 
 
+
+#' cross_basis_fft
+#'
+#' @param basisvar numeric vector
+#' @param basislag lagging matrix
+#' 
+#' @return numeric vector result of convolution
+#' @export
+#'
 cross_basis_fft <- function(basisvar, basislag) 
 {
   

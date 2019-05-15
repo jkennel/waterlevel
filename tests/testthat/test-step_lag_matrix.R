@@ -4,7 +4,7 @@ test_that("step_lag_matrix works", {
   library(dplyr)
   library(rlang)
   
-  context("step_lag")
+  context("step_lag_matrix")
   
   n <- 10
   start <- 1
@@ -85,6 +85,38 @@ test_that("step_lag_matrix works", {
     
     
   })
+  
+  
+  test_that("subset lag",  {
+    
+    set.seed(27)
+    n <- 10
+    df <- tibble(x = rnorm(n), t = 1:n)
+    
+    
+    baked_lag_matrix <- recipe(~ ., data = df) %>%
+      step_lag_matrix(t, lag = c(1, 5), n_subset = 2) %>%
+      prep(df) %>%
+      bake(df)
+    
+    expect_equal(length(baked_lag_matrix$lag_matrix_5_t), n/2)
+    
+    
+    baked_lag_matrix <- recipe(~ ., data = df) %>%
+      step_lag_matrix(t, lag = 1, n_subset = 2) %>%
+      prep(df) %>%
+      bake(df)
+    
+    baked_lag <- recipe(~ ., data = df) %>%
+      step_lag(t, lag = 1) %>%
+      prep(df) %>%
+      bake(df)
+    
+    expect_equal(baked_lag$lag_1_t[seq(1, n, 2)], 
+                 baked_lag_matrix$lag_matrix_1_t)
+    
+  })
+  
 
   
 })

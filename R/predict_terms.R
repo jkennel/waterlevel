@@ -25,7 +25,7 @@ predict_terms <-
     p <- object$rank
     p1 <- seq_len(p)
     piv <- if(p) qr(object)$pivot[p1]
-    beta <- object$coefficients
+    beta <- as.matrix(object$coefficients)
     
     aa <- attr(mm, "assign")
     ll <- attr(tt, "term.labels")
