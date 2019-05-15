@@ -30,6 +30,9 @@ using namespace RcppParallel;
 using namespace arma;
 using namespace Rcpp;
 
+// [[Rcpp::depends(RcppArmadillo)]]
+
+
 // x spectra vals
 // f frequency
 // b smoothing coef (even)
@@ -62,7 +65,7 @@ double konno_ohmachi(const arma::vec& b_vals,
   w.zeros();
 
   fc  = f[i];
-  ind = find(f >= 0.5 * fc && f <= 2.0 * fc);
+  ind = arma::find(f >= 0.5 * fc && f <= 2.0 * fc);
 
   arma::vec z = f(ind) / fc;
 
@@ -204,7 +207,7 @@ arma::vec konno_ohmachi_serial(const arma::vec& x,
     w.zeros();
     fc  = f[i];
 
-    ind = find(f >= 0.5 * fc && f <= 2.0 * fc);
+    ind = arma::find(f >= 0.5 * fc && f <= 2.0 * fc);
 
     z.set_size(ind.n_elem);
     z = f(ind) / fc;
@@ -247,19 +250,4 @@ arma::vec konno_ohmachi_serial(const arma::vec& x,
 
 
 /*** R
-
-library(baro)
-library(microbenchmark)
-n <- 30000
-set.seed(1)
-x <- rnorm(n)
-ref_z <- seq(0.5, 2.0, 0.0005)
-
-f <- 1:n
-microbenchmark(
-  a <- konno_ohmachi_parallel(x, f, b = 20),
-  b <- konno_ohmachi_serial(x, f, b = 20),
-  times = 1
-)
-
 */

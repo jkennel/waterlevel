@@ -1,5 +1,7 @@
 test_that("konno_ohmachi works", {
   
+  library(stats)
+
   n <- 3000
   x_in <- rnorm(n)
   x <- x_in

@@ -13,9 +13,6 @@ using namespace Rcpp;
 
 
 
-
-
-
 struct dl_worker: public Worker {
   // input vector of matrices
   const arma::vec& bv;
