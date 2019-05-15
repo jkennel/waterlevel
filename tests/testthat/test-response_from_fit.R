@@ -1,11 +1,6 @@
 test_that("response_from_fit works", {
-  library(waterlevel)
   library(earthtide)
   library(data.table)
-  library(plotly)
-  library(rlang)
-  library(purrr)
-  library(dplyr)
   library(recipes)
   
   exp1 <- -exp(-seq(0.01, 8, length.out = 60))
