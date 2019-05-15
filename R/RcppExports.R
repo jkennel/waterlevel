@@ -88,27 +88,6 @@ lag_matrix <- function(x, lags, n_subset = 1L, n_shift = 0L, var_name = "lag") {
 }
 
 #' @title
-#' distributed_lag
-#'
-#'
-#' @description
-#' This method calculates the basis for a distributed lag.  It is currently
-#' slow.
-#'
-#' @param basisvar matrix value of lag
-#' @param basislag matrix the basis lags
-#' @param lag_max integer maximum number of lags
-#'
-#' @return distributed lag basis
-#'
-#'
-#' @export
-#'
-distributed_lag <- function(bv, bl, lag) {
-    .Call(`_waterlevel_distributed_lag`, bv, bl, lag)
-}
-
-#' @title
 #' distributed_lag_parallel
 #'
 #' @description
@@ -228,9 +207,5 @@ konno_ohmachi_serial <- function(x, f, b = 10L) {
 
 fcb3 <- function(basisvar, basislag, lag) {
     .Call(`_waterlevel_fcb3`, basisvar, basislag, lag)
-}
-
-rcpp_hello_world <- function() {
-    .Call(`_waterlevel_rcpp_hello_world`)
 }
 

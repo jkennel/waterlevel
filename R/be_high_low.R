@@ -54,7 +54,7 @@ be_high_low <- function(dat,
       diff_wl = max(get(dep)) - min(get(dep)),
       diff_baro = max(get(ind)) - min(get(ind)),
       n = .N),
-      by = list(format(get(time), format = time_group))]
+      by = list(group = format(get(time), format = time_group))]
   }
   
   

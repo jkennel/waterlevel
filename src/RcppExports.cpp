@@ -71,19 +71,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// distributed_lag
-arma::mat distributed_lag(const arma::vec& bv, const arma::mat bl, arma::vec lag);
-RcppExport SEXP _waterlevel_distributed_lag(SEXP bvSEXP, SEXP blSEXP, SEXP lagSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const arma::vec& >::type bv(bvSEXP);
-    Rcpp::traits::input_parameter< const arma::mat >::type bl(blSEXP);
-    Rcpp::traits::input_parameter< arma::vec >::type lag(lagSEXP);
-    rcpp_result_gen = Rcpp::wrap(distributed_lag(bv, bl, lag));
-    return rcpp_result_gen;
-END_RCPP
-}
 // distributed_lag_parallel
 arma::mat distributed_lag_parallel(const arma::vec& x, const arma::mat& bl, int lag_max);
 RcppExport SEXP _waterlevel_distributed_lag_parallel(SEXP xSEXP, SEXP blSEXP, SEXP lag_maxSEXP) {
@@ -207,16 +194,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// rcpp_hello_world
-List rcpp_hello_world();
-RcppExport SEXP _waterlevel_rcpp_hello_world() {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    rcpp_result_gen = Rcpp::wrap(rcpp_hello_world());
-    return rcpp_result_gen;
-END_RCPP
-}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_waterlevel_harmonic", (DL_FUNC) &_waterlevel_harmonic, 2},
@@ -224,7 +201,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"_waterlevel_cos_harmonic", (DL_FUNC) &_waterlevel_cos_harmonic, 2},
     {"_waterlevel_shift_subset", (DL_FUNC) &_waterlevel_shift_subset, 4},
     {"_waterlevel_lag_matrix", (DL_FUNC) &_waterlevel_lag_matrix, 5},
-    {"_waterlevel_distributed_lag", (DL_FUNC) &_waterlevel_distributed_lag, 3},
     {"_waterlevel_distributed_lag_parallel", (DL_FUNC) &_waterlevel_distributed_lag_parallel, 3},
     {"_waterlevel_det_vector", (DL_FUNC) &_waterlevel_det_vector, 1},
     {"_waterlevel_solve_tf", (DL_FUNC) &_waterlevel_solve_tf, 1},
@@ -235,7 +211,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"_waterlevel_konno_ohmachi_parallel", (DL_FUNC) &_waterlevel_konno_ohmachi_parallel, 3},
     {"_waterlevel_konno_ohmachi_serial", (DL_FUNC) &_waterlevel_konno_ohmachi_serial, 3},
     {"_waterlevel_fcb3", (DL_FUNC) &_waterlevel_fcb3, 3},
-    {"_waterlevel_rcpp_hello_world", (DL_FUNC) &_waterlevel_rcpp_hello_world, 0},
     {NULL, NULL, 0}
 };
 

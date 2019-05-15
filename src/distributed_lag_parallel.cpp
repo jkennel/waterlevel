@@ -30,40 +30,40 @@ arma::mat lmat(const arma::vec& x,
 }
 
 
-//' @title
-//' distributed_lag
-//'
-//'
-//' @description
-//' This method calculates the basis for a distributed lag.  It is currently
-//' slow.
-//'
-//' @param basisvar matrix value of lag
-//' @param basislag matrix the basis lags
-//' @param lag_max integer maximum number of lags
-//'
-//' @return distributed lag basis
-//'
-//'
-//' @export
-//'
-// [[Rcpp::export]]
-arma::mat distributed_lag(const arma::vec& bv, const arma::mat bl, arma::vec lag) {
-  
-  int nrow = bv.n_elem;
-  int ncol = bl.n_rows;
-  int max_lag = max(lag);
-  
-  arma::mat cb(ncol, nrow);
-  cb = cb.fill(NA_REAL);
-  
-  for (int v = 0; v < (nrow-max_lag); v++) {
-    cb.col(v) = arma::vectorise(bl * bv.subvec(v, v + max_lag), 0);
-  }
-  
-  return(cb.t());
-  
-}
+// //' @title
+// //' distributed_lag
+// //'
+// //'
+// //' @description
+// //' This method calculates the basis for a distributed lag.  It is currently
+// //' slow.
+// //'
+// //' @param basisvar matrix value of lag
+// //' @param basislag matrix the basis lags
+// //' @param lag_max integer maximum number of lags
+// //'
+// //' @return distributed lag basis
+// //'
+// //'
+// //' @export
+// //'
+// // [[Rcpp::export]]
+// arma::mat distributed_lag_cpp(const arma::vec& bv, const arma::mat bl, arma::vec lag) {
+//   
+//   int nrow = bv.n_elem;
+//   int ncol = bl.n_rows;
+//   int max_lag = max(lag);
+//   
+//   arma::mat cb(ncol, nrow);
+//   cb = cb.fill(NA_REAL);
+//   
+//   for (int v = 0; v < (nrow-max_lag); v++) {
+//     cb.col(v) = arma::vectorise(bl * bv.subvec(v, v + max_lag), 0);
+//   }
+//   
+//   return(cb.t());
+//   
+// }
 
 struct dl_worker: public Worker {
   // input vector of matrices
