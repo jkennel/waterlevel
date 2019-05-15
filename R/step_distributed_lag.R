@@ -29,7 +29,7 @@
 #'               data = transducer[1:1000, list(datetime, wl, baro)])
 #'
 #' with_et <- rec %>%
-#'   step_distributed_lag(baro, knots = c(1, 10, 100)) %>%
+#'   step_distributed_lag(baro, knots = c(0, 10, 100)) %>%
 #'   step_naomit(everything()) %>% 
 #'   prep() %>%
 #'   juice()
