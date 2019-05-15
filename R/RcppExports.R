@@ -128,14 +128,6 @@ solve_tf_parallel <- function(a) {
     .Call(`_waterlevel_solve_tf_parallel`, a)
 }
 
-calc_b_vals <- function(b, wb) {
-    .Call(`_waterlevel_calc_b_vals`, b, wb)
-}
-
-konno_ohmachi <- function(b_vals, ref_z, f, x, i) {
-    .Call(`_waterlevel_konno_ohmachi`, b_vals, ref_z, f, x, i)
-}
-
 #' @title
 #' konno_ohmachi_parallel
 #'

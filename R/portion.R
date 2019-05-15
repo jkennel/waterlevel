@@ -43,17 +43,29 @@ portion <- function(object, ...) {
   new_data <- object$template[, names(object$template) %in% keepers]
   
   ## Since most models require factors, do the conversion from character
-  if (!is.null(object$levels)) {
-    var_levels <- object$levels
-    var_levels <- var_levels[keepers]
-    check_values <-
-      vapply(var_levels, function(x)
-        (!all(is.na(x))), c(all = TRUE))
-    var_levels <- var_levels[check_values]
-    # need to replace strings2factors
-    # if (length(var_levels) > 0)
-    #   new_data <- strings2factors(new_data, var_levels)
-  }
+  ## Factor matrices are not supported therefore portion treats
+  ## the result as a character matrix. A workaround is to use step_dummy or 
+  ## leave as a character vector.
+  
+  # if (!is.null(object$levels)) {
+  #   var_levels <- object$levels
+  #   var_levels <- var_levels[keepers]
+  #   check_values <-
+  #     vapply(var_levels, function(x)
+  #       (!all(is.na(x))), c(all = TRUE))
+  #   var_levels <- var_levels[check_values]
+  #   
+  #   # need to replace strings2factors
+  #   if (length(var_levels) > 0) {
+  #     for (i in seq_along(var_levels)) {
+  #       lcol <- names(var_levels)[i]
+  #       print('here')
+  #       new_data[, lcol] <- factor(as.character(getElement(new_data, lcol)),
+  #                           levels = var_levels[[i]]$values,
+  #                           ordered = var_levels[[i]]$ordered)
+  #     }
+  #   }
+  # }
 
   
   convert_tibble_of_matrices(new_data, object$term_info)
@@ -76,6 +88,9 @@ to_list_of_matrix <- function(col_group, x) {
     return(as.matrix(select(x, col_group)))
   
 }
+
+
+
 
 
 

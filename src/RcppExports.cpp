@@ -104,33 +104,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// calc_b_vals
-arma::vec calc_b_vals(int b, const arma::vec& wb);
-RcppExport SEXP _waterlevel_calc_b_vals(SEXP bSEXP, SEXP wbSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< int >::type b(bSEXP);
-    Rcpp::traits::input_parameter< const arma::vec& >::type wb(wbSEXP);
-    rcpp_result_gen = Rcpp::wrap(calc_b_vals(b, wb));
-    return rcpp_result_gen;
-END_RCPP
-}
-// konno_ohmachi
-double konno_ohmachi(const arma::vec& b_vals, const arma::vec& ref_z, const arma::vec& f, const arma::vec& x, int i);
-RcppExport SEXP _waterlevel_konno_ohmachi(SEXP b_valsSEXP, SEXP ref_zSEXP, SEXP fSEXP, SEXP xSEXP, SEXP iSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const arma::vec& >::type b_vals(b_valsSEXP);
-    Rcpp::traits::input_parameter< const arma::vec& >::type ref_z(ref_zSEXP);
-    Rcpp::traits::input_parameter< const arma::vec& >::type f(fSEXP);
-    Rcpp::traits::input_parameter< const arma::vec& >::type x(xSEXP);
-    Rcpp::traits::input_parameter< int >::type i(iSEXP);
-    rcpp_result_gen = Rcpp::wrap(konno_ohmachi(b_vals, ref_z, f, x, i));
-    return rcpp_result_gen;
-END_RCPP
-}
 // konno_ohmachi_parallel
 arma::vec konno_ohmachi_parallel(const arma::vec& x, const arma::vec& f, int b);
 RcppExport SEXP _waterlevel_konno_ohmachi_parallel(SEXP xSEXP, SEXP fSEXP, SEXP bSEXP) {
@@ -167,8 +140,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"_waterlevel_solve_tf", (DL_FUNC) &_waterlevel_solve_tf, 1},
     {"_waterlevel_det_parallel", (DL_FUNC) &_waterlevel_det_parallel, 1},
     {"_waterlevel_solve_tf_parallel", (DL_FUNC) &_waterlevel_solve_tf_parallel, 1},
-    {"_waterlevel_calc_b_vals", (DL_FUNC) &_waterlevel_calc_b_vals, 2},
-    {"_waterlevel_konno_ohmachi", (DL_FUNC) &_waterlevel_konno_ohmachi, 5},
     {"_waterlevel_konno_ohmachi_parallel", (DL_FUNC) &_waterlevel_konno_ohmachi_parallel, 3},
     {"_waterlevel_konno_ohmachi_serial", (DL_FUNC) &_waterlevel_konno_ohmachi_serial, 3},
     {NULL, NULL, 0}
