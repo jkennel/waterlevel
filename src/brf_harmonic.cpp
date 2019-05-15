@@ -60,67 +60,67 @@ Rcpp::NumericMatrix harmonic(arma::vec times,
 
 
 
-//==============================================================================
-//' sin_harmonic
-//'
-//' calculate sin and cos curves from POSIXct times (serial)
-//'
-//' @param x \code{numeric vector} times to calculate sin and cos at
-//' @param freq \code{numeric vector} frequencies for sin and cos
-//'
-//' @return sin curve
-//'
-//'
-//' @export
-//'
-// [[Rcpp::export]]
-arma::vec sin_harmonic(arma::vec x,
-                                 int freq){
-  
-  unsigned int n_rows = x.n_elem;
-  x -= x(0);
-
-  arma::vec out = arma::vec(n_rows);
-  
-  // 2 * pi * x / 86400
-  arma::vec cycle = (M_PI * (x / 43200));
-  
-
-  out = arma::sin(cycle * freq);
-  
-  return(out);
-  
-}
-
-
-//==============================================================================
-//' cos_harmonic
-//'
-//' calculate sin and cos curves from POSIXct times (serial)
-//'
-//' @param x \code{numeric vector} times to calculate sin and cos at
-//' @param freq \code{numeric vector} frequencies for sin and cos
-//'
-//' @return cos curve
-//'
-//' @export
-//'
-// [[Rcpp::export]]
-arma::vec cos_harmonic(arma::vec x,
-                       int freq){
-  
-  int n_rows = x.n_elem;
-  x -= x(0);
-  
-  arma::vec out = arma::vec(n_rows);
-  
-  // 2 * pi * x / 86400
-  arma::vec cycle = (M_PI * (x / 43200));
-  
-  
-  out = arma::cos(cycle * freq);
-  
-  return(out);
-  
-}
+// //==============================================================================
+// //' sin_harmonic
+// //'
+// //' calculate sin and cos curves from POSIXct times (serial)
+// //'
+// //' @param x \code{numeric vector} times to calculate sin and cos at
+// //' @param freq \code{numeric vector} frequencies for sin and cos
+// //'
+// //' @return sin curve
+// //'
+// //'
+// //' @export
+// //'
+// // [[Rcpp::export]]
+// arma::vec sin_harmonic(arma::vec x,
+//                                  int freq){
+//   
+//   unsigned int n_rows = x.n_elem;
+//   x -= x(0);
+// 
+//   arma::vec out = arma::vec(n_rows);
+//   
+//   // 2 * pi * x / 86400
+//   arma::vec cycle = (M_PI * (x / 43200));
+//   
+// 
+//   out = arma::sin(cycle * freq);
+//   
+//   return(out);
+//   
+// }
+// 
+// 
+// //==============================================================================
+// //' cos_harmonic
+// //'
+// //' calculate sin and cos curves from POSIXct times (serial)
+// //'
+// //' @param x \code{numeric vector} times to calculate sin and cos at
+// //' @param freq \code{numeric vector} frequencies for sin and cos
+// //'
+// //' @return cos curve
+// //'
+// //' @export
+// //'
+// // [[Rcpp::export]]
+// arma::vec cos_harmonic(arma::vec x,
+//                        int freq){
+//   
+//   int n_rows = x.n_elem;
+//   x -= x(0);
+//   
+//   arma::vec out = arma::vec(n_rows);
+//   
+//   // 2 * pi * x / 86400
+//   arma::vec cycle = (M_PI * (x / 43200));
+//   
+//   
+//   out = arma::cos(cycle * freq);
+//   
+//   return(out);
+//   
+// }
 

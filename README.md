@@ -47,11 +47,11 @@ Future work
 -----------
 
 -   Decrease dependencies
--   fft methods
+-   Other fft methods for frequency response functions
 -   Add parameter estimation methods
 -   Add analysis methods (slug testing, pumping tests)
 -   Increase test coverage
 -   Increase memory and computational efficiency
 -   Gap filling methods (interpolation)
--   Add option to use parallel non-FFT distributed lag method
--   Distribute lag with subset
+-   Distributed lag with subset
+-   factor handling in portion

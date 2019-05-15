@@ -13,21 +13,7 @@ using namespace Rcpp;
 
 
 
-arma::mat lmat(const arma::vec& x,
-               int n_lags) {
-  
-  int n = x.n_elem;
-  int n_col = n_lags;
-  int n_row = n-n_col;
-  
-  arma::mat out = arma::mat(n_row, n_col);
-  
-  for (arma::uword i = 0; i < n_col; i++) {
-    out.col(i) = x.subvec(i, n_row+i-1);
-  }
-  
-  return(out);
-}
+
 
 
 struct dl_worker: public Worker {
@@ -91,6 +77,22 @@ arma::mat distributed_lag_parallel(const arma::vec& x,
   
 }
 
+
+// arma::mat lmat(const arma::vec& x,
+//                int n_lags) {
+//   
+//   int n = x.n_elem;
+//   int n_col = n_lags;
+//   int n_row = n-n_col;
+//   
+//   arma::mat out = arma::mat(n_row, n_col);
+//   
+//   for (arma::uword i = 0; i < n_col; i++) {
+//     out.col(i) = x.subvec(i, n_row+i-1);
+//   }
+//   
+//   return(out);
+// }
 
 // //' @title
 // //' distributed_lag
