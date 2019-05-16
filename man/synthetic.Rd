@@ -23,7 +23,7 @@ trend (numeric)}
 \item{baro_kernel}{vector values to convolve with barometric pressure}
 }
 \value{
-data.table of results
+data.table of synthetic water levels and barometric pressure
 }
 \description{
 This function is used for testing purposes

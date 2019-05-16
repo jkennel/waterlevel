@@ -10,7 +10,8 @@
 #' @param seed random number seed for reproducibility (numeric)
 #' @param baro_kernel vector values to convolve with barometric pressure
 #'
-#' @return data.table of results
+#' @return data.table of synthetic water levels and barometric pressure
+#' 
 #' @export
 #' 
 #' @importFrom stats rnorm
@@ -39,7 +40,7 @@ synthetic <- function(sd_noise = 0.0002,
   noise_wl <- 0#rnorm(n, sd = sd_noise) + cumsum(rnorm(n, sd = sd_noise_trend))
   
   if (is.null(baro_kernel)) {
-    data('baro_kernel', envir=environment())
+    data(baro_kernel)
   }
   
   baro_response <- baro
