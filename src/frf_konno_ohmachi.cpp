@@ -37,6 +37,7 @@ using namespace Rcpp;
 // f frequency
 // b smoothing coef (even)
 
+// [[Rcpp::export]]
 arma::vec calc_b_vals(int b,
                       const arma::vec& wb) {
 
@@ -46,7 +47,7 @@ arma::vec calc_b_vals(int b,
   return(ret);
 }
 
-
+// [[Rcpp::export]]
 double konno_ohmachi(const arma::vec& b_vals,
                      const arma::vec& ref_z,
                      const arma::vec& f,

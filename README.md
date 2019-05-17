@@ -53,5 +53,3 @@ Future work
 -   Increase test coverage
 -   Increase memory and computational efficiency
 -   Gap filling methods (interpolation)
--   Distributed lag with subset
--   factor handling in portion

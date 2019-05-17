@@ -78,5 +78,4 @@ See the package vignettes for examples the methods.
 - Increase test coverage
 - Increase memory and computational efficiency
 - Gap filling methods (interpolation)
-- Distributed lag with subset
 
