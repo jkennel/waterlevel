@@ -43,8 +43,9 @@ pad_kernel <- function(k, n){
 #'
 #' @export
 #'
-#' @importFrom stats na.fail
-#'
+#' @importFrom stats na.fail frequency as.ts fft mvfft nextn
+#' 
+#' 
 spec_pgram <-
   function (x, spans = NULL, kernel = NULL, taper = 0.1,
             pad = 0, fast = TRUE,

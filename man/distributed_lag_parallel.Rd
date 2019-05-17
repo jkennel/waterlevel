@@ -4,7 +4,7 @@
 \alias{distributed_lag_parallel}
 \title{distributed_lag_parallel}
 \usage{
-distributed_lag_parallel(x, bl, lag_max)
+distributed_lag_parallel(x, bl, lag_max, n_subset = 1L, n_shift = 0L)
 }
 \arguments{
 \item{x}{matrix value of lag}
@@ -12,6 +12,10 @@ distributed_lag_parallel(x, bl, lag_max)
 \item{bl}{matrix the basis lags}
 
 \item{lag_max}{integer maximum number of lags}
+
+\item{n_subset}{integer subset the data}
+
+\item{n_shift}{integer to shift}
 }
 \value{
 distributed lag basis

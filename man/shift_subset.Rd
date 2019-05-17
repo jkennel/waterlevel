@@ -4,7 +4,7 @@
 \alias{shift_subset}
 \title{shift_subset}
 \usage{
-shift_subset(x, lag, n_subset, n_shift)
+shift_subset(x, lag = 0L, n_subset = 1L, n_shift = 0L)
 }
 \arguments{
 \item{x}{\code{numeric vector} to lag}

@@ -39,9 +39,6 @@ synthetic <- function(sd_noise = 0.0002,
   baro <- ba * 2 - mean(ba, na.rm = TRUE) + noise_baro
   noise_wl <- 0#rnorm(n, sd = sd_noise) + cumsum(rnorm(n, sd = sd_noise_trend))
   
-  if (is.null(baro_kernel)) {
-    data(baro_kernel)
-  }
   
   baro_response <- baro
   baro_response[!is.na(baro_response)] <- 0.5 * convolve_fft(x = na.omit(baro),

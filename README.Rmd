@@ -79,5 +79,4 @@ See the package vignettes for examples the methods.
 - Increase memory and computational efficiency
 - Gap filling methods (interpolation)
 - Distributed lag with subset
-- factor handling in portion
 

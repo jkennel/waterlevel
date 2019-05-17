@@ -51,11 +51,11 @@ data(transducer)
 
 ```{r plotwl, echo = FALSE, fig.height = 2, fig.margin = TRUE}
 par(mar = c(2, 5, 0.5, 0.5))
-plot(baro~datetime, transducer, type = 'l', 
+plot(baro~datetime, transducer[seq(1, nrow(transducer), 10)], type = 'l', 
      las = 1, lwd = 2, col = '#BC7C56',
      xlab = '', ylab = 'baro (dbar)')
 
-plot(wl~datetime, transducer, type = 'l', 
+plot(wl~datetime, transducer[seq(1, nrow(transducer), 10)], type = 'l', 
      las = 1, lwd = 2, col = '#5696BC',
      xlab = '', ylab = 'wl (dbar)')
 ```
@@ -71,14 +71,14 @@ transducer[, wl_detrend := lm(wl~datetime)$residuals]
 transducer[, baro_detrend := lm(baro~datetime)$residuals]
 ```
 
-```{r trendremovalplot, echo = FALSE, fig.height = 4, fig.margin = TRUE}
+```{r trendremovalplot, echo = FALSE, fig.height = 2, fig.margin = TRUE}
 par(mar = c(2, 5, 0.5, 0.5))
-plot(baro_detrend~datetime, transducer, 
+plot(baro_detrend~datetime, transducer[seq(1, nrow(transducer), 10)], 
      type = 'l', las = 1,
      col = '#BC7C56',  lwd = 2,
      xlab = '', ylab = 'baro detrend (dbar)')
 
-points(wl_detrend~datetime, transducer, 
+points(wl_detrend~datetime, transducer[seq(1, nrow(transducer), 10)], 
        type = 'l', las = 1, 
        col = '#5696BC', lwd = 2,
        xlab = '', ylab = 'wl detrend (dbar)')
@@ -112,9 +112,9 @@ be_ls <- be_least_squares(dat = transducer,
 be_ls
 ```
 
-```{r leastsquaresplot, echo = FALSE, fig.height = 4, fig.margin = TRUE}
+```{r leastsquaresplot, echo = FALSE,  fig.height = 4, fig.width = 4}
 par(mar = c(5, 5, 0.5, 0.5))
-plot(wl_detrend~baro_detrend, transducer,
+plot(wl_detrend~baro_detrend, transducer[seq(1, nrow(transducer), 10)],
      pch = 20, las = 1,
      cex = 0.05, col = '#000000',
      asp = 1)
@@ -142,14 +142,14 @@ be_lsd
 ```
 
 
-```{r leastsquaresdiffplot, echo = FALSE, fig.height = 4, fig.margin = TRUE}
+```{r leastsquaresdiffplot, echo = FALSE, fig.height = 4, fig.width = 4}
 par(mar = c(5, 5, 0.5, 0.5))
-plot(diff(wl_detrend, 30)~diff(baro_detrend,30), transducer,
+plot(diff(wl_detrend, 30)~diff(baro_detrend,30), transducer[seq(1, nrow(transducer), 10)],
      pch = 20, las = 1,
      cex = 0.05, col = '#000000',
      ylab = 'wl differences',
      xlab = 'baro differences',
-     asp = 1)
+     asp=1)
 grid()
 ```
 
@@ -250,13 +250,15 @@ I like this method for data where there is a complex trend.  It uses informed ju
 
 ```{r smith, eval = TRUE}
 
-be_visual(transducer[seq(1, nrow(transducer), 90)],
+be_visual(transducer[seq(1, nrow(transducer), 120)],
           dep = 'wl_detrend',
           ind = 'baro_detrend',
           time = 'datetime',
-          be_tests = seq(0.6, 1.0, 0.05),
+          be_tests = seq(0.6, 0.9, 0.05),
           inverse = FALSE,
-          subsample = TRUE)
+          subsample = TRUE) %>%
+  partial_bundle()
+
 ```
 
 What value do you estimate for LE? How certain are you? Why is there stucture in the residuals? One reason is that this data is from a semi-confined well with non-negligible well-bore storage and we have violated the assumption that there is no time lag in the response.  A better technique for this well would have been to use barometric/loading response functions.

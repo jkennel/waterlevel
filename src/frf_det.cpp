@@ -6,70 +6,7 @@ using namespace arma;
 using namespace Rcpp;
 
 
-//' @title
-//' det_vector
-//'
-//' @description
-//' Determinant for an array
-//'
-//' @param x \code{numeric array} values to evaluate
-//'
-//' @return vector of determinants
-//'
-//'
-//' @export
-// [[Rcpp::export]]
-arma::cx_vec det_vector(const arma::cx_cube& x) {
 
-  std::size_t n = x.n_rows;
-  std::size_t nc = x.n_cols;
-
-  arma::cx_vec output(n);
-  arma::cx_mat mat(nc, nc);
-
-  for (std::size_t i = 0; i < n; i++){
-    mat = x(arma::span(i), arma::span(), arma::span());
-    output(i) = arma::det(mat);
-  }
-
-  return(output);
-
-}
-
-
-
-// [[Rcpp::export]]
-arma::cx_mat solve_tf(arma::cx_cube x) {
-
-  unsigned int n  = x.n_rows;
-  unsigned int nr = x.n_cols -1;
-
-  arma::cx_mat output(n, nr);
-  arma::cx_cube numer_base = x(arma::span(),
-                               arma::span(1, nr),
-                               arma::span(1, nr));;
-  arma::cx_cube numer(n, nr, nr);
-
-
-  arma::cx_cube numer_sol = x(arma::span(),
-                              arma::span(1, nr),
-                              arma::span(0));
-
-  arma::cx_vec denom = det_vector(numer_base);
-
-  for (arma::uword i=0; i < nr; i++){
-
-    // fill new column
-    numer = numer_base;
-    numer(arma::span(), arma::span(), arma::span(i)) = numer_sol;
-
-    output.col(i) = det_vector(numer) / denom;
-
-  }
-
-  return(output);
-
-}
 
 
 
@@ -170,6 +107,72 @@ arma::cx_mat solve_tf_parallel(arma::cx_cube a) {
   return(output);
 }
 
+// Serial code
+
+// //' @title
+// //' det_vector
+// //'
+// //' @description
+// //' Determinant for an array
+// //'
+// //' @param x \code{numeric array} values to evaluate
+// //'
+// //' @return vector of determinants
+// //'
+// //'
+// //' @export
+// // [[Rcpp::export]]
+// arma::cx_vec det_vector(const arma::cx_cube& x) {
+// 
+//   std::size_t n = x.n_rows;
+//   std::size_t nc = x.n_cols;
+// 
+//   arma::cx_vec output(n);
+//   arma::cx_mat mat(nc, nc);
+// 
+//   for (std::size_t i = 0; i < n; i++){
+//     mat = x(arma::span(i), arma::span(), arma::span());
+//     output(i) = arma::det(mat);
+//   }
+// 
+//   return(output);
+// 
+// }
+// 
+// 
+// 
+// // [[Rcpp::export]]
+// arma::cx_mat solve_tf(arma::cx_cube x) {
+// 
+//   unsigned int n  = x.n_rows;
+//   unsigned int nr = x.n_cols -1;
+// 
+//   arma::cx_mat output(n, nr);
+//   arma::cx_cube numer_base = x(arma::span(),
+//                                arma::span(1, nr),
+//                                arma::span(1, nr));;
+//   arma::cx_cube numer(n, nr, nr);
+// 
+// 
+//   arma::cx_cube numer_sol = x(arma::span(),
+//                               arma::span(1, nr),
+//                               arma::span(0));
+// 
+//   arma::cx_vec denom = det_vector(numer_base);
+// 
+//   for (arma::uword i=0; i < nr; i++){
+// 
+//     // fill new column
+//     numer = numer_base;
+//     numer(arma::span(), arma::span(), arma::span(i)) = numer_sol;
+// 
+//     output.col(i) = det_vector(numer) / denom;
+// 
+//   }
+// 
+//   return(output);
+// 
+// }
 
 
 /*** R

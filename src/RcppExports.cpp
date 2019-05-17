@@ -6,19 +6,6 @@
 
 using namespace Rcpp;
 
-// distributed_lag_parallel
-arma::mat distributed_lag_parallel(const arma::vec& x, const arma::mat& bl, int lag_max);
-RcppExport SEXP _waterlevel_distributed_lag_parallel(SEXP xSEXP, SEXP blSEXP, SEXP lag_maxSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const arma::vec& >::type x(xSEXP);
-    Rcpp::traits::input_parameter< const arma::mat& >::type bl(blSEXP);
-    Rcpp::traits::input_parameter< int >::type lag_max(lag_maxSEXP);
-    rcpp_result_gen = Rcpp::wrap(distributed_lag_parallel(x, bl, lag_max));
-    return rcpp_result_gen;
-END_RCPP
-}
 // harmonic
 Rcpp::NumericMatrix harmonic(arma::vec times, arma::vec& freq);
 RcppExport SEXP _waterlevel_harmonic(SEXP timesSEXP, SEXP freqSEXP) {
@@ -28,6 +15,58 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< arma::vec >::type times(timesSEXP);
     Rcpp::traits::input_parameter< arma::vec& >::type freq(freqSEXP);
     rcpp_result_gen = Rcpp::wrap(harmonic(times, freq));
+    return rcpp_result_gen;
+END_RCPP
+}
+// check_lag
+int check_lag(int n, int lag, int n_shift);
+RcppExport SEXP _waterlevel_check_lag(SEXP nSEXP, SEXP lagSEXP, SEXP n_shiftSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type n(nSEXP);
+    Rcpp::traits::input_parameter< int >::type lag(lagSEXP);
+    Rcpp::traits::input_parameter< int >::type n_shift(n_shiftSEXP);
+    rcpp_result_gen = Rcpp::wrap(check_lag(n, lag, n_shift));
+    return rcpp_result_gen;
+END_RCPP
+}
+// get_length
+int get_length(int n, int n_subset);
+RcppExport SEXP _waterlevel_get_length(SEXP nSEXP, SEXP n_subsetSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type n(nSEXP);
+    Rcpp::traits::input_parameter< int >::type n_subset(n_subsetSEXP);
+    rcpp_result_gen = Rcpp::wrap(get_length(n, n_subset));
+    return rcpp_result_gen;
+END_RCPP
+}
+// get_start
+int get_start(int n_out, int lag, int n_subset);
+RcppExport SEXP _waterlevel_get_start(SEXP n_outSEXP, SEXP lagSEXP, SEXP n_subsetSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type n_out(n_outSEXP);
+    Rcpp::traits::input_parameter< int >::type lag(lagSEXP);
+    Rcpp::traits::input_parameter< int >::type n_subset(n_subsetSEXP);
+    rcpp_result_gen = Rcpp::wrap(get_start(n_out, lag, n_subset));
+    return rcpp_result_gen;
+END_RCPP
+}
+// get_end
+int get_end(int n, int n_out, int lag, int n_subset);
+RcppExport SEXP _waterlevel_get_end(SEXP nSEXP, SEXP n_outSEXP, SEXP lagSEXP, SEXP n_subsetSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type n(nSEXP);
+    Rcpp::traits::input_parameter< int >::type n_out(n_outSEXP);
+    Rcpp::traits::input_parameter< int >::type lag(lagSEXP);
+    Rcpp::traits::input_parameter< int >::type n_subset(n_subsetSEXP);
+    rcpp_result_gen = Rcpp::wrap(get_end(n, n_out, lag, n_subset));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -60,25 +99,18 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// det_vector
-arma::cx_vec det_vector(const arma::cx_cube& x);
-RcppExport SEXP _waterlevel_det_vector(SEXP xSEXP) {
+// distributed_lag_parallel
+arma::mat distributed_lag_parallel(const arma::vec& x, const arma::mat& bl, int lag_max, int n_subset, int n_shift);
+RcppExport SEXP _waterlevel_distributed_lag_parallel(SEXP xSEXP, SEXP blSEXP, SEXP lag_maxSEXP, SEXP n_subsetSEXP, SEXP n_shiftSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const arma::cx_cube& >::type x(xSEXP);
-    rcpp_result_gen = Rcpp::wrap(det_vector(x));
-    return rcpp_result_gen;
-END_RCPP
-}
-// solve_tf
-arma::cx_mat solve_tf(arma::cx_cube x);
-RcppExport SEXP _waterlevel_solve_tf(SEXP xSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< arma::cx_cube >::type x(xSEXP);
-    rcpp_result_gen = Rcpp::wrap(solve_tf(x));
+    Rcpp::traits::input_parameter< const arma::vec& >::type x(xSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type bl(blSEXP);
+    Rcpp::traits::input_parameter< int >::type lag_max(lag_maxSEXP);
+    Rcpp::traits::input_parameter< int >::type n_subset(n_subsetSEXP);
+    Rcpp::traits::input_parameter< int >::type n_shift(n_shiftSEXP);
+    rcpp_result_gen = Rcpp::wrap(distributed_lag_parallel(x, bl, lag_max, n_subset, n_shift));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -132,12 +164,14 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_waterlevel_distributed_lag_parallel", (DL_FUNC) &_waterlevel_distributed_lag_parallel, 3},
     {"_waterlevel_harmonic", (DL_FUNC) &_waterlevel_harmonic, 2},
+    {"_waterlevel_check_lag", (DL_FUNC) &_waterlevel_check_lag, 3},
+    {"_waterlevel_get_length", (DL_FUNC) &_waterlevel_get_length, 2},
+    {"_waterlevel_get_start", (DL_FUNC) &_waterlevel_get_start, 3},
+    {"_waterlevel_get_end", (DL_FUNC) &_waterlevel_get_end, 4},
     {"_waterlevel_shift_subset", (DL_FUNC) &_waterlevel_shift_subset, 4},
     {"_waterlevel_lag_matrix", (DL_FUNC) &_waterlevel_lag_matrix, 5},
-    {"_waterlevel_det_vector", (DL_FUNC) &_waterlevel_det_vector, 1},
-    {"_waterlevel_solve_tf", (DL_FUNC) &_waterlevel_solve_tf, 1},
+    {"_waterlevel_distributed_lag_parallel", (DL_FUNC) &_waterlevel_distributed_lag_parallel, 5},
     {"_waterlevel_det_parallel", (DL_FUNC) &_waterlevel_det_parallel, 1},
     {"_waterlevel_solve_tf_parallel", (DL_FUNC) &_waterlevel_solve_tf_parallel, 1},
     {"_waterlevel_konno_ohmachi_parallel", (DL_FUNC) &_waterlevel_konno_ohmachi_parallel, 3},
