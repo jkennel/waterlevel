@@ -193,47 +193,10 @@ arma::vec konno_ohmachi_serial(const arma::vec& x,
   arma::vec ref_z = arma::regspace<arma::vec>(0.5, 0.0005, 2.0);
   arma::vec b_vals = calc_b_vals(b, ref_z);
 
-  double fc, sum_w;
-  int n_w0;
-  int idx, s, e;
+  for (int i = 1; i < n; i++) {
+    
+    y(i) = konno_ohmachi(b_vals, ref_z, f, x, i);
 
-  arma::uvec ind(n);
-  arma::vec w(n);
-  arma::vec w0;
-  arma::vec z;
-
-  for (int i; i < n; i++) {
-    w.zeros();
-    fc  = f[i];
-
-    ind = arma::find(f >= 0.5 * fc && f <= 2.0 * fc);
-
-    z.set_size(ind.n_elem);
-    z = f(ind) / fc;
-
-    n_w0 = z.n_elem;
-
-    w0.set_size(n_w0);
-    arma::interp1(ref_z, b_vals, z, w0, "*linear", 1.0);
-
-    // arma::vec w0 = arma::pow((sin(b * log10(z)) / b / log10(z))), 4);
-    // w0.elem(arma::find_nonfinite(w0)).zeros();
-
-    idx = arma::index_max(w0);
-    s = (i - idx);
-
-    // shift are values to pad
-    if ((s + n_w0) > n) {
-      e = n - 1;
-      w.subvec(s, e) = w0;
-      sum_w = arma::sum(w);
-    } else {
-      e = s + n_w0 - 1;
-      w.subvec(s, e) = w0;
-      sum_w = arma::sum(w0);
-    }
-
-    y(i) = arma::dot(w, x) / sum_w;
   }
 
   y(0) = y(1);
