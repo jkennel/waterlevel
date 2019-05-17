@@ -23,6 +23,15 @@ test_that("spec_pgram works", {
                           plot = FALSE,
                           taper = 0)$spec)
   
+  expect_equal(as.numeric(Re(spec_pgram(x, 
+                                        demean = TRUE, 
+                                        detrend = FALSE, 
+                                        taper = 0))),
+               spec.pgram(x, 
+                          demean = TRUE, 
+                          detrend = FALSE,
+                          plot = FALSE,
+                          taper = 0)$spec)
   
   expect_equal(as.numeric(Re(spec_pgram(x, 
                                         demean = TRUE, 
@@ -35,7 +44,7 @@ test_that("spec_pgram works", {
                           taper = 0)$spec)
   
   
-  x <- rnorm(2^14)
+  x <- rnorm(2^17)
   taper <- 0
   
   expect_equal(as.numeric(Re(spec_pgram(x, 
