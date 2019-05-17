@@ -19,7 +19,7 @@ test_that("be_acworth works", {
   
   
   dat <- data.table(ba, datetime = x)
-
+  
   wg <- as.data.table(earthtide::eterna_wavegroups)
   wg <- wg[time == 'all', list(start, end)]
   dat[, et := calc_earthtide(datetime, 
@@ -28,12 +28,12 @@ test_that("be_acworth works", {
                              astro_update = 600,
                              wave_groups = wg)[,2] * 3e-5]
   dat[, wl := -be * ba + et ]
-
+  
   be_test <- be_acworth(dat, wl = 'wl', ba = 'ba', et = 'et', 
-                         method = 'spec_pgram',
+                        method = 'spec_pgram',
                         spans = c(3, 3, 3, 3, 3), inverse = TRUE)
-
-
+  
+  
   expect_equal(be_test, be, tolerance = 1e-2)
   
   be_test <- be_acworth(dat, wl = 'wl', ba = 'ba', et = 'et', 
@@ -58,9 +58,13 @@ test_that("be_acworth works", {
                         method = 'spec_welch', window = window_hann,
                         n_subsets = 50, inverse = TRUE)
   
-  
   expect_equal(be_test, be, tolerance = 1e-2)
   
+  
+  expect_error(be_acworth(dat, wl = 'wl', ba = 'ba', et = 'et', 
+                          method = 'spectrum', window = window_hann,
+                          n_subsets = 50, inverse = TRUE), 
+               regexp = 'spectrum method not yet implemented') 
   
   # plot(dat$et, type='l', xlim = c(0, 500))
   # plot(dat$ba, type='l', xlim = c(0, 500))

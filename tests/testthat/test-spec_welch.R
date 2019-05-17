@@ -16,6 +16,7 @@ test_that("spec_welch recovers input values", {
   sp <- as.numeric(spec_welch(Re(as.matrix(dat$harm)), 
                               window = window_rectangular))
   
+
   
   n <- 2 * (length(sp))
   frequency <- seq.int(from = 1/n, by = 1/n, length.out = length(sp)) * 86400/dt
@@ -68,5 +69,17 @@ test_that("spec_welch recovers input values", {
   
   expect_equal(sqrt(sp4[wh4]), sqrt(sp3[wh3]), tolerance = 1e-5)
   
+  
+  sp1 <- as.numeric(spec_welch(Re(as.matrix(dat$harm)),
+                              window = window_rectangular),
+                   detrend = FALSE, demean = TRUE)
+
+  sp2 <- as.numeric(spec_welch(Re(as.matrix(dat$harm)),
+                              window = window_rectangular),
+                   detrend = FALSE, demean = FALSE)
+  
+  expect_equal(sp1, sp2)
+  
   })
+
 

@@ -22,4 +22,11 @@ test_that("transfer_fun works", {
   expect_equal(Re(tfw$gain_x_z[1]), 0.7)
   
   
+  
+  expect_error(transfer_fun(dat, vars = c('x', 'y', 'z'), time = 'datetime',
+                            method = 'spectrum', n_subsets = 10), 
+               regexp = 'spectrum method not yet implemented') 
+  
+
+  
 })

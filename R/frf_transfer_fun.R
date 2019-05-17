@@ -32,7 +32,7 @@ transfer_fun <- function(dat, vars, time = 'datetime', method = 'spec_pgram', ..
                          length.out = nrow(pgram)) * 86400/t_interval
     
   } else {
-    stop('method must be either spec_welch or spec_pgram')
+    stop(paste(method, 'method not yet implemented'))
   }
   
   # solve for transfer function

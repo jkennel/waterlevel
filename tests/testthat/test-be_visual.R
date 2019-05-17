@@ -10,10 +10,17 @@ wl <- -sin(x) * be + rnorm(length(x), sd = 0.04)
 dat <- data.table(datetime = as.POSIXct(x * 86400 / (2 * pi),
                                         origin = '1970-01-01', tz = 'UTC'),
                   wl = wl, baro = baro)
-expect_equal(class(be_visual(dat)), c('plotly', 'htmlwidget'))
+
+
 
 dat_be <- be_visual_data(dat)
 
+
+test_that("be_visual runs", {
+  
+  expect_equal(class(be_visual(dat)), 
+               c('plotly', 'htmlwidget'))
+})
 
 test_that("be_visual_plot runs", {
   expect_equal(class(be_visual_plot(dat_be)), c('plotly', 'htmlwidget'))

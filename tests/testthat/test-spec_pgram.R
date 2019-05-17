@@ -58,6 +58,31 @@ test_that("spec_pgram works", {
                           taper = 0)$spec)
   
   
+  expect_equal(as.numeric(Re(spec_pgram(x, 
+                                        demean = TRUE, 
+                                        detrend = TRUE, 
+                                        taper = 0,
+                                        spans = 3))),
+               spec.pgram(x, 
+                          demean = TRUE, 
+                          detrend = TRUE,
+                          plot = FALSE,
+                          taper = 0,
+                          spans = 3)$spec)
+
+  
+  
+  expect_equal(as.numeric(Re(spec_pgram(x, 
+                                        demean = TRUE, 
+                                        detrend = TRUE, 
+                                        taper = 0,
+                                        kernel = kernel("modified.daniell", 3 %/% 2)))),
+               as.numeric(Re(spec_pgram(x, 
+                                        demean = TRUE, 
+                                        detrend = TRUE, 
+                                        taper = 0,
+                                        spans = 3))))
+  
 
 })
 
