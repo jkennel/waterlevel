@@ -94,10 +94,10 @@ be_visual_plot <- function(dat,
   if (time == 'time'){
     dat[, datetime := time]
   } else if (time != 'time') {
+    
     if (time == 'datetime') {
     } else if ('time' %in% names(dat)) {
       dat <- dat[, -c('time'), with = FALSE]
-    } else {
       dat[, datetime := get(time)]
     }
   }
