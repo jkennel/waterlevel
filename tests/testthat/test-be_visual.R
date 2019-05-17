@@ -36,7 +36,7 @@ test_that("be_visual_plot runs", {
   expect_equal(class(be_visual_plot(dat_be, time = 'other')), 
                c('plotly', 'htmlwidget'))
   
-  dat_be <- be_visual_data(dat, be_tests = seq(0, 1, 0.1))
+  dat_be <- be_visual_data(dat, be_tests = seq(0, 1, 0.05))
   
   expect_equal(class(be_visual_plot(dat_be)), c('plotly', 'htmlwidget'))
   
