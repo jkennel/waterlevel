@@ -82,11 +82,54 @@ test_that("response_from_fit works", {
   
   expect_equal(resp[type == 'amplitude']$value, c(0.2, 0.7))
   
-  # test earthtide
-  # library(earthtide)
-  # tms <- seq.POSIXt(as.POSIXct('2018-01-01'), as.POSIXct('2018-01-14'), 
-  #                   by = '1 min')
-  # et <- calc_earthtide(tms,
-  #                astro_update = 10)
+  
+  
+  library(tibble)
+  library(data.table)
+  library(recipes)
+  data(transducer)
+
+  # Select wavegroups
+  wave_groups <- data.table(start = 1.9322736-1e-6, end = 1.9322736+1e-6)
+  ns_df <- 7
+  delta_t <- 120                        
+  max_lag_baro <- 43200/delta_t 
+  knots <- log_lags(15, max_lag_baro)
+  
+  dat_e <- recipe(wl~., transducer) %>%                          
+    step_distributed_lag(baro, knots = knots) %>%   
+    step_earthtide(datetime,
+                   longitude = -118.67,
+                   latitude = 34.23,
+                   elevation = 550,
+                   wave_groups = wave_groups, 
+                   astro_update = 60) %>%      
+    step_mutate(datetime_num = as.numeric(datetime)) %>%           
+    step_ns(datetime_num, deg_free = ns_df, role = 'splines') %>%                        
+    prep() %>%                                                 
+    portion()   
+  
+  
+  knots <- log_lags(15, max_lag_baro)
+  dat_h <- recipe(wl~., transducer) %>%                          
+    step_distributed_lag(baro, knots = knots) %>%   
+    step_harmonic(datetime,freq = 1.9322736) %>%      
+    step_mutate(datetime_num = as.numeric(datetime)) %>%           
+    step_ns(datetime_num, deg_free = ns_df, role = 'splines') %>%                        
+    prep() %>%                                                 
+    portion()   
+  
+
+  fit_e <- lm(outcome~splines + earthtide + distributed_lag,  dat_e)
+  fit_h <- lm(outcome~splines + harmonic + distributed_lag,  dat_h)
+
+  resp_e <- response_from_fit(fit_e)
+  resp_h <- response_from_fit(fit_h)
+  
+  # check the M2 signal amplitude with two methods
+  expect_equal(resp_e[type=='amplitude']$value, 
+               resp_h[type=='amplitude']$value,
+               tol = 1e-7)
+
   
 })
