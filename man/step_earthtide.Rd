@@ -29,10 +29,10 @@ have been estimated.}
 \item{method}{One or more of "gravity", 
 "tidal_potential", "tidal_tilt", "vertical_displacement", 
 "horizontal_displacement", "n_s_displacement", "e_w_displacement",
-"vertical_strain", "areal_strain", "volume_strain", or "ocean_tides",
-"pole_tide", "lod_tide". The pole tide and lod_tide are used in predict
-mode even if do_predict is FALSE. More than one value can only be used
-if do_predict == TRUE.}
+"vertical_strain", "areal_strain", "volume_strain", "horizontal_strain",
+or "ocean_tides", "pole_tide", "lod_tide". The pole tide and lod_tide 
+are used in predict mode even if do_predict is FALSE. More than one value
+can only be used if do_predict == TRUE.}
 
 \item{astro_update}{Integer that
 determines how often to phases are updated in number of samples. Defaults
