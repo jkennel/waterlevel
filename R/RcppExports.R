@@ -14,6 +14,7 @@ weeks_1979 <- function(lag, D, L, precision = 1e-8) {
 #' @param time \code{numeric} value of elapsed time
 #' @param D \code{numeric} unsaturated zone air diffusivity
 #' @param L \code{numeric} unsaturated zone thickness
+#' @param precision \code{numeric} precision of solution
 #'
 #' @return brf from weeks 1979 model
 #'

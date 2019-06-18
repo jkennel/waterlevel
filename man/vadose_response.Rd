@@ -12,6 +12,8 @@ vadose_response(time, D, L, precision = 1e-08)
 \item{D}{\code{numeric} unsaturated zone air diffusivity}
 
 \item{L}{\code{numeric} unsaturated zone thickness}
+
+\item{precision}{\code{numeric} precision of solution}
 }
 \value{
 brf from weeks 1979 model
