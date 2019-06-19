@@ -1,4 +1,4 @@
-test_that("multiplication works", {
+test_that("gap_fill works", {
   
   library(waterlevel)
   library(data.table)

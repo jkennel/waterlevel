@@ -56,6 +56,8 @@ find_level_shift <- function(x, dep_var = 'val', time_var = 'datetime', time_int
   }
   
   subs <- rbindlist(subs)
+  # subs[1, start = min(x$datetime, na.rm = TRUE)]
+  # subs[nrow(subs), end = max(x$datetime, na.rm = TRUE)]
   subs[, midpoint := as.POSIXct((as.numeric(start) + as.numeric(end)) / 2, 
                                 origin = '1970-01-01', tz = 'UTC')]
   
@@ -92,12 +94,10 @@ gap_fill <- function(x, recipe, dep_var = 'wl', time_var = 'datetime',
   gaps[, start := start - (buffer_start)]
   gaps[, end := end + (buffer_end)]
 
-  
   x <- copy(x)
-  x[, level_shift := set_level_shift(get(time_var), gaps$midpoint)]
 
   g <- gaps[, get_shift(x, recipe, start, end),
-            by = list(midpoint <- as.POSIXct(midpoint, tz = 'UTC'))]
+            by = list(midpoint = as.POSIXct(midpoint, tz = 'UTC'))]
 
 }
 
