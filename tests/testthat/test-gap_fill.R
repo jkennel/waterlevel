@@ -7,8 +7,12 @@ test_that("gap_fill works", {
 
   transducer[21000:21500, wl := NA_real_]
   transducer[21200:nrow(transducer), wl := wl + 0.01]
-  transducer[, level_shift := factor(1)]
+  tmp <- find_level_shift(transducer, dep_var = 'wl', 
+                          time_var = 'datetime', 
+                          time_interval = 120L)
   
+  transducer[, level_shift := set_level_shift(datetime, tmp$midpoint)]
+
   ba_lags <- log_lags(12, 86400*2/120)
   et_lags <- seq(-3600, 21600, 1200) / 120
   rec <- recipe(wl~., transducer) %>%
