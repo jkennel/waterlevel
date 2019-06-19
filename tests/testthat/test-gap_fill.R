@@ -1,7 +1,6 @@
 test_that("multiplication works", {
   
   library(waterlevel)
-  library(transducer)
   library(data.table)
 
   data(transducer)
