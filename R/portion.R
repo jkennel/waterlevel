@@ -38,6 +38,7 @@ portion <- function(object, ...) {
   terms <- quos(...)
   if (is_empty(terms))
     terms <- quos(everything())
+  
   keepers <- terms_select(terms = terms, info = object$term_info)
   
   new_data <- object$template[, names(object$template) %in% keepers]
@@ -66,7 +67,7 @@ portion <- function(object, ...) {
   #     }
   #   }
   # }
-
+  
   
   convert_tibble_of_matrices(new_data, object$term_info)
   
@@ -77,15 +78,14 @@ portion <- function(object, ...) {
 convert_tibble_of_matrices <- function(x, term_info) {
   
   role_group <- split(term_info$variable, term_info$role)
-  
   as_tibble(lapply(role_group, to_list_of_matrix, x = x))
   
   
 }
 
 to_list_of_matrix <- function(col_group, x) {
-
-    return(as.matrix(select(x, col_group)))
+  
+  return(as.matrix(select(x, col_group)))
   
 }
 

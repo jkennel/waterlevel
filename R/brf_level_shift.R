@@ -1,4 +1,4 @@
-#' level_shift
+#' set_level_shift
 #'
 #' Create a factor column with the data subseted according to break points.
 #' 
@@ -9,8 +9,8 @@
 #' @export
 #'
 #' @examples
-#' level_shift(1:100, c(2, 40, 86))
-level_shift <- function(x,
+#' set_level_shift(1:100, c(2, 40, 86))
+set_level_shift <- function(x,
                         level_breaks = NULL) {
   
   cut(x, 
@@ -65,58 +65,73 @@ find_level_shift <- function(x, dep_var = 'val', time_var = 'datetime', time_int
 
 
 
-#' add_level_shift
+
+
+
+#' gap_fill
 #'
-#' @param x the data set (data.table)
+#' @param x data.table of water levels
+#' @param recipe recipe to apply
 #' @param dep_var the time variable name (character)
 #' @param time_var the time variable name (character)
 #' @param time_interval the delta t (numeric)
+#' @param buffer_start how much buffer on each side of gap
+#' @param buffer_end how much buffer on each side of gap
 #'
-#' @return vector for grouping
+#' @return data.table of predictions
 #' @export
 #'
-add_level_shift <- function(x, dep_var = 'val', time_var = 'datetime', time_interval = 1) {
+gap_fill <- function(x, recipe, dep_var = 'wl', time_var = 'datetime',
+                     time_interval = 1L, 
+                     buffer_start = 86400*4,
+                     buffer_end = 86400*4) {
+
+  gaps <- find_level_shift(x, dep_var = dep_var, time_var = time_var,
+                           time_interval = time_interval)
+
+  gaps[, start := start - (buffer_start)]
+  gaps[, end := end + (buffer_end)]
+
   
-  ssss <- NULL
-  eeee <- NULL
-  level_shift <- NULL
-  start <- NULL
-  end <- NULL
-  
-  x <- setDT(x)
-  # get the NA subsets
-  gaps <- find_level_shift(x, dep_var, time_var, time_interval)
-  
-  x[, ssss := get(time_var)]
-  x[, eeee := get(time_var)]
-  
-  mn <- min(x$datetime, na.rm = TRUE)
-  mx <- max(x$datetime, na.rm = TRUE)
-  
-  shift_df <- data.table(start = c(mn, gaps$midpoint),
-                         end   = c(gaps$midpoint, mx))
-  
-  # keep timezone info
-  attr(shift_df$start, 'tzone') <- attr(mn, 'tzone')
-  attr(shift_df$end, 'tzone') <- attr(mn, 'tzone')
-  attr(x$ssss, 'tzone') <- attr(mn, 'tzone')
-  attr(x$eeee, 'tzone') <- attr(mn, 'tzone')
-  
-  setkey(shift_df, start, end)
-  setkey(x, ssss, eeee)
-  
-  
-  x[, level_shift := sprintf("%04d", foverlaps(x, shift_df,
-                                               type = 'within',
-                                               which = TRUE,
-                                               mult = 'first',
-                                               nomatch = NULL))]
-  
-  as.factor(x$level_shift)
-  
+  x <- copy(x)
+  x[, level_shift := set_level_shift(get(time_var), gaps$midpoint)]
+
+  g <- gaps[, get_shift(x, recipe, start, end),
+            by = list(midpoint <- as.POSIXct(midpoint, tz = 'UTC'))]
+
 }
 
+#' get_shift
+#'
+#' @param x data.table of water levels
+#' @param recipe recipe to apply
+#' @param start start subset time
+#' @param end end subset tiem
+#'
+#' @return data.table of predictions
+#' @export
+#'
+get_shift <- function(x, recipe, start, end) {
+  
+  y <- x[datetime %between% c(start, end)]
 
+  dat <- recipe %>%
+    prep(training = y) %>%
+    portion()
+  
+  fit <- lm(outcome~distributed_lag + lag_earthtide + datetime + level_shift, 
+            dat,  
+            x = FALSE, y = FALSE, tol = 1e-50)
+  
+  print(summary(fit))
+  
+  pt <- as.data.table(predict(fit, dat, type = 'terms', terms = 'level_shift'))
+  pt[, predict := predict(fit, dat)]
+  pt[, level_shift := level_shift - level_shift[1]]
+  pt[, datetime := as.POSIXct(dat$datetime, origin = '1970-01-01', tz = 'UTC')]
+  
+  pt
+}
 
 
 
