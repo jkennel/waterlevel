@@ -23,9 +23,11 @@ test_that("gap_fill works", {
                        lag = et_lags,
                        cutoff = 1e-6,
                        astro_update = 300) %>%
-    step_mutate(datetime_num = as.numeric(datetime)) %>%
-    step_mutate(datetime_nu2m = as.numeric(datetime), role = 'datetime') %>%
-    step_dummy(level_shift, role = 'level_shift') %>%
+    step_mutate(datetime_num = as.numeric(datetime), role = 'datetime') %>%
+    step_dummy(level_shift, one_hot = TRUE, role = 'level_shift') %>%
+    step_naomit(has_role(match = "lag_earthtide")) %>%
+    step_naomit(has_role(match = "distributed_lag")) %>%
+    #step_dummy(level_shift, role = 'level_shift') %>%
     step_zv(has_role(match = "level_shift"))
   
   g <- gap_fill(transducer, rec, time_interval = 120, 

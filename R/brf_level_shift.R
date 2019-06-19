@@ -119,7 +119,7 @@ get_shift <- function(x, recipe, start, end) {
     prep(training = y) %>%
     portion()
   
-  fit <- lm(outcome~distributed_lag + lag_earthtide + datetime + level_shift, 
+  fit <- lm(outcome~distributed_lag + lag_earthtide + datetime + level_shift -1, 
             dat,  
             x = FALSE, y = FALSE, tol = 1e-50)
   
