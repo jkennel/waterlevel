@@ -4,12 +4,10 @@
 \alias{get_intercept_stats}
 \title{get_intercept_stats}
 \usage{
-get_intercept_stats(y)
+get_intercept_stats(x)
 }
 \arguments{
-\item{y}{data.table of level shifts from regression}
-
-\item{x}{data.table with start, end, and midpoint}
+\item{x}{data.table of level shifts from regression}
 }
 \value{
 data.table of shift summaries
