@@ -1,3 +1,8 @@
+
+# THESE FUNCTIONS ARE BRITTLE ---------------------------------------------
+
+
+
 #' set_level_shift
 #'
 #' Create a factor column with the data subseted according to break points.
@@ -98,7 +103,8 @@ gap_fill <- function(x, recipe, dep_var = 'wl', time_var = 'datetime',
 
   g <- gaps[, get_shift(x, recipe, start, end),
             by = list(midpoint = as.POSIXct(midpoint, tz = 'UTC'))]
-
+  
+ 
 }
 
 #' get_shift
@@ -134,4 +140,38 @@ get_shift <- function(x, recipe, start, end) {
 }
 
 
+
+#' get_intercept_stats
+#'
+#' @param x data.table with start, end, and midpoint
+#' @param y data.table of level shifts from regression
+#'
+#' @return data.table of shift summaries
+#' @export
+#'
+get_intercept_stats <- function(y) {
+  
+  y <- y[, list(shifts = unique(level_shift),
+                 min_datetime = min(datetime),
+                 max_datetime = max(datetime)), 
+          by = list(midpoint)]
+  
+  mids <- unique(y[, list(shift_datetime = midpoint, end_toss = midpoint)])
+  rngs <- unique(y[, list(start = min_datetime, end = max_datetime, midpoint)])
+  setkey(mids, shift_datetime, end_toss)
+  setkey(rngs, start, end)
+  grps <- foverlaps(rngs, mids)[, list(start, end, shift_datetime, midpoint, type = 'reg')]
+  grps <- grps[, rbind(data.table(shift_datetime = start[1], midpoint = midpoint[1], type = 'non-reg'), .SD), by = list(start, end)]
+  grps <- grps[, list(shift_datetime, midpoint, type)]
+  
+  y <- cbind(y, shift_datetime = grps$shift_datetime)
+  
+  y[, list(min = min(shifts),
+            max = max(shifts),
+            mean = mean(shifts),
+            n = .N),
+     by = shift_datetime]
+  
+  
+}
 

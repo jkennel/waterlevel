@@ -7,6 +7,10 @@ test_that("gap_fill works", {
 
   transducer[21000:21500, wl := NA_real_]
   transducer[21200:nrow(transducer), wl := wl + 0.01]
+  
+  # transducer[21600:21700, wl := NA_real_]
+  # transducer[21700:nrow(transducer), wl := wl + 0.03]
+  # 
   tmp <- find_level_shift(transducer, dep_var = 'wl', 
                           time_var = 'datetime', 
                           time_interval = 120L)
@@ -34,5 +38,11 @@ test_that("gap_fill works", {
                 buffer_start = 86400 * 6, buffer_end = 86400 * 4)
   
   expect_equal(tail(g$level_shift, 1), 0.01, tolerance = 0.0001)
+  
+  s <- get_intercept_stats(g)
+  
+  expect_equal(tail(s$min, 1), 0.01, tolerance = 0.0001)
+  
+
   
 })
