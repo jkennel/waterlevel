@@ -145,7 +145,7 @@ get_shift <- function(x, recipe, start, end) {
 #'
 #' @param x data.table of level shifts from regression
 #'
-#' @return data.table of shift summaries
+#' @return data.table of shifts
 #' @export
 #'
 get_intercept_stats <- function(x) {
@@ -154,7 +154,7 @@ get_intercept_stats <- function(x) {
                  min_datetime = min(datetime),
                  max_datetime = max(datetime)), 
           by = list(midpoint)]
-  
+  x[, shift_diff := c(0.0, diff(shifts)), by = midpoint]
   mids <- unique(x[, list(shift_datetime = midpoint, end_toss = midpoint)])
   rngs <- unique(x[, list(start = min_datetime, end = max_datetime, midpoint)])
   setkey(mids, shift_datetime, end_toss)
@@ -165,12 +165,36 @@ get_intercept_stats <- function(x) {
   
   x <- cbind(x, shift_datetime = grps$shift_datetime)
   
-  x[, list(min = min(shifts),
-            max = max(shifts),
-            mean = mean(shifts),
-            n = .N),
-     by = shift_datetime]
+  return(x[midpoint == shift_datetime])
+  
+  # x[, list(min = min(shifts),
+  #           max = max(shifts),
+  #           mean = mean(shifts),
+  #           n = .N),
+  #    by = shift_datetime]
   
   
 }
+
+
+
+#' add_level_shifts
+#'
+#' @param x datetimes
+#' @param y shift vector
+#'
+#' @return
+#' @export
+#'
+add_level_shifts <- function(x, y) {
+  
+  out <- rep(0.0, length(x))
+  
+  for(i in 1:nrow(y)) {
+    wh <- which(x < y$shift_datetime[i])
+    out[wh] <- out[wh] + y$shift_diff[i]
+  }
+  
+}
+
 

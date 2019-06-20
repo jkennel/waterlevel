@@ -10,7 +10,7 @@ get_intercept_stats(x)
 \item{x}{data.table of level shifts from regression}
 }
 \value{
-data.table of shift summaries
+data.table of shifts
 }
 \description{
 get_intercept_stats
