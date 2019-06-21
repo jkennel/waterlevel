@@ -91,17 +91,32 @@ find_level_shift <- function(x,
 #' @param time_interval the delta t (numeric)
 #' @param buffer_start how much buffer on each side of gap
 #' @param buffer_end how much buffer on each side of gap
+#' @param max_interp largest gap to interpolate
 #'
 #' @return data.table of predictions
 #' @export
 #'
-gap_fill <- function(x, recipe, dep_var = 'wl', time_var = 'datetime',
+gap_fill <- function(x, recipe, 
+                     dep_var = 'wl',
+                     time_var = 'datetime',
                      time_interval = 1L, 
-                     buffer_start = 86400*4,
-                     buffer_end = 86400*4) {
+                     buffer_start = 86400 * 4,
+                     buffer_end = 86400 * 4,
+                     max_interp = 86400 * 7) {
   
   gaps <- find_level_shift(x, dep_var = dep_var, time_var = time_var,
                            time_interval = time_interval)
+  if (nrow(gaps) == 0) {
+    stop('no gaps to fill')
+    return(NULL)
+  }
+  
+  gaps <- gaps[as.numeric(end) - as.numeric(start) < max_interp]
+  
+  if (nrow(gaps) == 0) {
+    warning('no gaps to fill')
+    return(NULL)
+  }
   
   gaps[, start := start - (buffer_start)]
   gaps[, end := end + (buffer_end)]

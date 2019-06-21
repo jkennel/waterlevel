@@ -6,7 +6,7 @@
 \usage{
 gap_fill(x, recipe, dep_var = "wl", time_var = "datetime",
   time_interval = 1L, buffer_start = 86400 * 4, buffer_end = 86400 *
-  4)
+  4, max_interp = 86400 * 7)
 }
 \arguments{
 \item{x}{data.table of water levels}
@@ -22,6 +22,8 @@ gap_fill(x, recipe, dep_var = "wl", time_var = "datetime",
 \item{buffer_start}{how much buffer on each side of gap}
 
 \item{buffer_end}{how much buffer on each side of gap}
+
+\item{max_interp}{largest gap to interpolate}
 }
 \value{
 data.table of predictions
