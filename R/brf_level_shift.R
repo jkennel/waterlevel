@@ -16,7 +16,7 @@
 #' @examples
 #' set_level_shift(1:100, c(2, 40, 86))
 set_level_shift <- function(x,
-                        level_breaks = NULL) {
+                            level_breaks = NULL) {
   
   cut(x, 
       breaks = c(min(x, na.rm = TRUE),
@@ -37,7 +37,10 @@ set_level_shift <- function(x,
 #' @return data.table of gaps
 #' @export
 #'
-find_level_shift <- function(x, dep_var = 'val', time_var = 'datetime', time_interval = 1) {
+find_level_shift <- function(x,
+                             dep_var = 'val', 
+                             time_var = 'datetime', 
+                             time_interval = 1) {
 
   midpoint <- NULL
   
@@ -117,10 +120,9 @@ gap_fill <- function(x, recipe, dep_var = 'wl', time_var = 'datetime',
 #' @param x gap data.table 
 #' @param y interpolated values
 #'
-#' @return
+#' @return data.table with gap values adjusted for range
 #' @export
 #'
-#' @examples
 gap_fill2 <- function(x, y) {
   
   x <- x[y, on = 'midpoint']
@@ -197,8 +199,9 @@ get_intercept_stats <- function(x) {
             mean = mean(shift_diff),
             n = .N),
      by = shift_datetime]
-  x[!(min == 0.0 & max == 0)]
   
+  x <- x[!(min == 0.0 & max == 0)]
+  return(x)
 }
 
 
@@ -208,7 +211,7 @@ get_intercept_stats <- function(x) {
 #' @param x datetimes
 #' @param y shift vector
 #'
-#' @return
+#' @return vector of shifts
 #' @export
 #'
 add_level_shifts <- function(x, y) {
@@ -217,10 +220,8 @@ add_level_shifts <- function(x, y) {
   
   for(i in 1:nrow(y)) {
     wh <- which(x > y$shift_datetime[i])
-    
     mn <- as.numeric(y[i, list(min, max, mean)])
     mn <- mn[which.min(abs(mn))]
-
     out[wh] <- out[wh] + mn
   }
   
@@ -236,7 +237,7 @@ add_level_shifts <- function(x, y) {
 #' @param end_val 
 #' @param values 
 #'
-#' @return
+#' @return shifted vector of values
 #' @export
 #' 
 stretch_interp <- function(start_val = NA, 

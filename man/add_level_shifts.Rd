@@ -11,6 +11,9 @@ add_level_shifts(x, y)
 
 \item{y}{shift vector}
 }
+\value{
+vector of shifts
+}
 \description{
 add_level_shifts
 }

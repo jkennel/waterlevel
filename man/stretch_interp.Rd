@@ -13,6 +13,9 @@ stretch_interp(start_val = NA, end_val = NA, values)
 
 \item{values}{}
 }
+\value{
+shifted vector of values
+}
 \description{
 stretch_interp
 }

@@ -11,6 +11,9 @@ gap_fill2(x, y)
 
 \item{y}{interpolated values}
 }
+\value{
+data.table with gap values adjusted for range
+}
 \description{
 gap_fill2
 }
