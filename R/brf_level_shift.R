@@ -38,9 +38,7 @@ set_level_shift <- function(x,
 #' @export
 #'
 find_level_shift <- function(x, dep_var = 'val', time_var = 'datetime', time_interval = 1) {
-  
-  start <- NULL
-  end <- NULL
+
   midpoint <- NULL
   
   # remove times with no values
@@ -55,8 +53,14 @@ find_level_shift <- function(x, dep_var = 'val', time_var = 'datetime', time_int
     subs <- data.table(start = tms[1], end = tms[n])
   } else {
     for (i in 1:(length(wh))) {
-      subs[[i]] <- data.table(start = tms[(wh[i])], 
-                              end   = tms[(wh[i])+1])
+      
+      start <- tms[(wh[i])]
+      end   <- tms[(wh[i]) + 1]
+      
+      subs[[i]] <- data.table(start = start, 
+                              end   = end,
+                              start_val = x[get(time_var) == start][[dep_var]],
+                              end_val = x[get(time_var) == end][[dep_var]])
     }
   }
   
@@ -92,20 +96,41 @@ gap_fill <- function(x, recipe, dep_var = 'wl', time_var = 'datetime',
                      time_interval = 1L, 
                      buffer_start = 86400*4,
                      buffer_end = 86400*4) {
-
+  
   gaps <- find_level_shift(x, dep_var = dep_var, time_var = time_var,
                            time_interval = time_interval)
-
+  
   gaps[, start := start - (buffer_start)]
   gaps[, end := end + (buffer_end)]
-
-  x <- copy(x)
-
-  g <- gaps[, get_shift(x, recipe, start, end),
-            by = list(midpoint = as.POSIXct(midpoint, tz = 'UTC'))]
   
- 
+  x <- copy(x)
+  
+  gaps[, get_shift(x, recipe, start, end),
+       by = list(midpoint = as.POSIXct(midpoint, tz = 'UTC'))]
+  
+  
 }
+
+
+#' gap_fill2
+#'
+#' @param x gap data.table 
+#' @param y interpolated values
+#'
+#' @return
+#' @export
+#'
+#' @examples
+gap_fill2 <- function(x, y) {
+  
+  x <- x[y, on = 'midpoint']
+  
+  x[, list(interp = stretch_interp(start_val[1], end_val[1], predict_adj[datetime %between% c(start[1], end[1])]),
+           datetime = datetime[datetime %between% c(start[1], end[1])]), 
+       by = list(midpoint)]
+
+}
+
 
 #' get_shift
 #'
@@ -135,7 +160,7 @@ get_shift <- function(x, recipe, start, end) {
   pt[, predict := predict(fit, dat)]
   pt[, level_shift := level_shift - level_shift[1]]
   pt[, datetime := as.POSIXct(dat$datetime, origin = '1970-01-01', tz = 'UTC')]
-  
+  pt[, predict_adj := predict - level_shift]
   pt
 }
 
@@ -165,14 +190,14 @@ get_intercept_stats <- function(x) {
   
   x <- cbind(x, shift_datetime = grps$shift_datetime)
   
-  return(x[midpoint == shift_datetime])
+  #return(x[midpoint == shift_datetime])
   
-  # x[, list(min = min(shifts),
-  #           max = max(shifts),
-  #           mean = mean(shifts),
-  #           n = .N),
-  #    by = shift_datetime]
-  
+  x <- x[, list(min = min(shift_diff),
+            max = max(shift_diff),
+            mean = mean(shift_diff),
+            n = .N),
+     by = shift_datetime]
+  x[!(min == 0.0 & max == 0)]
   
 }
 
@@ -191,10 +216,46 @@ add_level_shifts <- function(x, y) {
   out <- rep(0.0, length(x))
   
   for(i in 1:nrow(y)) {
-    wh <- which(x < y$shift_datetime[i])
-    out[wh] <- out[wh] + y$shift_diff[i]
+    wh <- which(x > y$shift_datetime[i])
+    
+    mn <- as.numeric(y[i, list(min, max, mean)])
+    mn <- mn[which.min(abs(mn))]
+
+    out[wh] <- out[wh] + mn
   }
   
+  
+  return(out)
+  
+}
+
+
+#' stretch_interp
+#'
+#' @param start_val 
+#' @param end_val 
+#' @param values 
+#'
+#' @return
+#' @export
+#' 
+stretch_interp <- function(start_val = NA, 
+                           end_val = NA,
+                           values) {
+  
+  shifta <- start_val - values[1]
+  shiftb <- end_val - values[length(values)]
+  
+  if(is.na(start_val)){
+    shifta <- shiftb
+  } 
+  if(is.na(end_val)){
+    shiftb <- shifta
+  } 
+  
+  values <- values + seq(shifta, shiftb, length.out = length(values))
+  
+  return(values)
 }
 
 
