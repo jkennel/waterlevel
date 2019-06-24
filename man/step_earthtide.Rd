@@ -9,8 +9,8 @@ step_earthtide(recipe, ..., role = "earthtide", trained = FALSE,
   longitude = 0, elevation = 0, azimuth = 0, gravity = 0,
   earth_radius = 6378136.3, earth_eccen = 0.0066943979514,
   cutoff = 1e-06, wave_groups = NULL, catalog = "ksm04",
-  eop = NULL, prefix = "earthtide_", default = NA, columns = NULL,
-  skip = FALSE, id = rand_id("earthtide"))
+  eop = NULL, scale = TRUE, prefix = "earthtide_", default = NA,
+  columns = NULL, skip = FALSE, id = rand_id("earthtide"))
 }
 \arguments{
 \item{recipe}{A recipe object. The step will be added to the sequence of
@@ -70,6 +70,8 @@ inferred column positions are start, end, multiplier.}
 
 \item{eop}{User defined Earth Orientation Parameter (EOP) data.frame with the 
 following columns: datetime, ddt, ut1_utc, lod, x, y, dx, dy}
+
+\item{scale}{Scale results when do_pedict is FALSE}
 
 \item{prefix}{A prefix for generated column names, default to 
 "earthtide_".}

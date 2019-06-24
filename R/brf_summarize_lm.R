@@ -19,7 +19,6 @@ summarize_lm <- function(fit) {
     AIC           = stats::AIC(fit),
     BIC           = stats::BIC(fit),
     logLik        = as.numeric(stats::logLik(fit))
-    
   )
   
 }

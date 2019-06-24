@@ -7,11 +7,11 @@
 stretch_interp(start_val = NA, end_val = NA, values)
 }
 \arguments{
-\item{start_val}{}
+\item{start_val}{starting value to match}
 
-\item{end_val}{}
+\item{end_val}{end value to match}
 
-\item{values}{}
+\item{values}{set of values}
 }
 \value{
 shifted vector of values

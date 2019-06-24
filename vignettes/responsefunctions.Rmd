@@ -295,11 +295,12 @@ knots <- log_lags(15, max_lag_baro)
 dat <- recipe(wl~., transducer) %>%                          
   step_distributed_lag(baro, knots = knots) %>%   
   step_earthtide(datetime,
-               longitude = -118.67,
-               latitude = 34.23,
-               elevation = 550,
-               wave_groups = wave_groups, 
-               astro_update = 60) %>%      
+                 longitude = -118.67,
+                 latitude = 34.23,
+                 elevation = 550,
+                 wave_groups = wave_groups, 
+                 astro_update = 60,
+                 scale = TRUE) %>%      
   step_mutate(datetime_num = as.numeric(datetime)) %>%           
   step_ns(datetime_num, deg_free = ns_df, role = 'splines') %>%                        
   prep() %>%                                                 

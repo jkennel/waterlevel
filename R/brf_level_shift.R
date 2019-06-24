@@ -249,9 +249,9 @@ add_level_shifts <- function(x, y) {
 
 #' stretch_interp
 #'
-#' @param start_val 
-#' @param end_val 
-#' @param values 
+#' @param start_val starting value to match
+#' @param end_val end value to match
+#' @param values set of values
 #'
 #' @return shifted vector of values
 #' @export

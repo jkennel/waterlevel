@@ -118,6 +118,7 @@ step_earthtide_new <-
       wave_groups = wave_groups,
       catalog = catalog, 
       eop = eop,
+      scale = scale,
       default = default,
       prefix = prefix,
       columns = columns,
@@ -180,7 +181,7 @@ bake.step_earthtide <- function(object, new_data, ...) {
                                      wave_groups = object$wave_groups,
                                      catalog = object$catalog,
                                      eop = object$eop,
-                                     scale = obj$scale,
+                                     scale = object$scale,
                                      return_matrix = TRUE)))
   
 }
