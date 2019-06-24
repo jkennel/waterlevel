@@ -47,6 +47,7 @@ find_level_shift <- function(x,
   # remove times with no values
   tms <- x[!is.na(get(dep_var))][[time_var]]
   
+  # find locations of gaps
   wh  <- which(diff(as.numeric(tms)) != time_interval)
   n   <- length(tms)
   
@@ -60,16 +61,15 @@ find_level_shift <- function(x,
       start <- tms[(wh[i])]
       end   <- tms[(wh[i]) + 1]
       
-      subs[[i]] <- data.table(start = start, 
-                              end   = end,
+      subs[[i]] <- data.table(start     = start, 
+                              end       = end,
                               start_val = x[get(time_var) == start][[dep_var]],
-                              end_val = x[get(time_var) == end][[dep_var]])
+                              end_val   = x[get(time_var) == end][[dep_var]])
     }
   }
   
   subs <- rbindlist(subs)
-  # subs[1, start = min(x$datetime, na.rm = TRUE)]
-  # subs[nrow(subs), end = max(x$datetime, na.rm = TRUE)]
+
   subs[, midpoint := as.POSIXct((as.numeric(start) + as.numeric(end)) / 2, 
                                 origin = '1970-01-01', tz = 'UTC')]
   
@@ -106,6 +106,7 @@ gap_fill <- function(x, recipe,
   
   gaps <- find_level_shift(x, dep_var = dep_var, time_var = time_var,
                            time_interval = time_interval)
+  
   if (nrow(gaps) == 0) {
     stop('no gaps to fill')
     return(NULL)

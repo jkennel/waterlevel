@@ -36,6 +36,7 @@ test_that("gap_fill works", {
   
   g <- gap_fill(transducer, rec, time_interval = 120, 
                 buffer_start = 86400 * 6, buffer_end = 86400 * 4)
+  
   # gap_fill2(tmp, g)
   
   expect_equal(tail(g$level_shift, 1), 0.01, tolerance = 0.0001)
@@ -47,3 +48,5 @@ test_that("gap_fill works", {
 
   
 })
+
+

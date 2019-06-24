@@ -61,6 +61,7 @@ step_earthtide <-
            wave_groups = NULL,
            catalog = "ksm04", 
            eop = NULL,
+           scale = TRUE,
            prefix = "earthtide_",
            default = NA,
            columns = NULL,
@@ -85,6 +86,7 @@ step_earthtide <-
         wave_groups = wave_groups,
         catalog = catalog, 
         eop = eop,
+        scale = scale,
         default = default,
         prefix = prefix,
         columns = columns,
@@ -97,7 +99,7 @@ step_earthtide <-
 step_earthtide_new <-
   function(terms, role, trained, method, astro_update, latitude, longitude,
            elevation, azimuth, gravity, earth_radius, earth_eccen, cutoff,
-           wave_groups, catalog, eop, default, prefix, columns, skip, id) {
+           wave_groups, catalog, eop, scale, default, prefix, columns, skip, id) {
     step(
       subclass = "earthtide",
       terms = terms,
@@ -144,6 +146,7 @@ prep.step_earthtide <- function(x, training, info = NULL, ...) {
     wave_groups = x$wave_groups,
     catalog = x$catalog, 
     eop = x$eop,
+    scale = x$scale,
     default = x$default,
     prefix = x$prefix,
     columns = terms_select(x$terms, info = info),
@@ -177,6 +180,7 @@ bake.step_earthtide <- function(object, new_data, ...) {
                                      wave_groups = object$wave_groups,
                                      catalog = object$catalog,
                                      eop = object$eop,
+                                     scale = obj$scale,
                                      return_matrix = TRUE)))
   
 }
