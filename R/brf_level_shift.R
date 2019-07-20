@@ -126,7 +126,7 @@ gap_fill <- function(x,
   
   x <- copy(x)
   
-  gaps[, get_shift(x, recipe, start, end),
+  gaps[, get_fit_summary(x, recipe, start, end),
        by = list(midpoint = as.POSIXct(midpoint, tz = 'UTC'))]
   
   
