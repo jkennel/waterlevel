@@ -22,3 +22,23 @@ summarize_lm <- function(fit) {
   )
   
 }
+
+
+#' summarize_coef
+#'
+#' @param fit model fit from lm object
+#'
+#' @return data.table with coefficient results
+#' @export 
+#'
+summarize_coef <- function(fit) {
+  
+  co <- summary(fit)$coefficients
+  
+  data.table(
+    name = names(fit$coefficients),
+    co
+  )
+ 
+}
+

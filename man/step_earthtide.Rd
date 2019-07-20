@@ -71,7 +71,7 @@ inferred column positions are start, end, multiplier.}
 \item{eop}{User defined Earth Orientation Parameter (EOP) data.frame with the 
 following columns: datetime, ddt, ut1_utc, lod, x, y, dx, dy}
 
-\item{scale}{Scale results when do_pedict is FALSE}
+\item{scale}{Scale results when do_predict is FALSE}
 
 \item{prefix}{A prefix for generated column names, default to 
 "earthtide_".}

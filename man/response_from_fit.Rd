@@ -4,7 +4,7 @@
 \alias{response_from_fit}
 \title{response_from_fit}
 \usage{
-response_from_fit(fit)
+response_from_fit(x, ...)
 }
 \arguments{
 \item{fit}{model fit object, commonly lm}

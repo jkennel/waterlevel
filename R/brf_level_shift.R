@@ -96,7 +96,9 @@ find_level_shift <- function(x,
 #' @return data.table of predictions
 #' @export
 #'
-gap_fill <- function(x, recipe, 
+gap_fill <- function(x, 
+                     gaps, 
+                     recipe, 
                      dep_var = 'wl',
                      time_var = 'datetime',
                      time_interval = 1L, 
@@ -104,8 +106,8 @@ gap_fill <- function(x, recipe,
                      buffer_end = 86400 * 4,
                      max_interp = 86400 * 7) {
   
-  gaps <- find_level_shift(x, dep_var = dep_var, time_var = time_var,
-                           time_interval = time_interval)
+  # gaps <- find_level_shift(x, dep_var = dep_var, time_var = time_var,
+  #                          time_interval = time_interval)
   
   if (nrow(gaps) == 0) {
     stop('no gaps to fill')
@@ -172,7 +174,7 @@ get_shift <- function(x, recipe, start, end) {
             dat,  
             x = FALSE, y = FALSE, tol = 1e-50)
   
-  print(summary(fit))
+  #print(summary(fit))
   
   pt <- as.data.table(predict(fit, dat, type = 'terms', terms = 'level_shift'))
   pt[, predict := predict(fit, dat)]
@@ -275,4 +277,46 @@ stretch_interp <- function(start_val = NA,
   return(values)
 }
 
+
+# library(data.table)
+# dat <- data.table(x = rnorm(100), y = rnorm(100), z = rnorm(100))
+# dat[30:40, x := NA_real_]
+# dat[50:70, z := NA_real_]
+# dat[10:12, y := NA_real_]
+# 
+# fill_lm <- function(dat, fill_cols, partial = FALSE) {
+#   
+#   dat <- copy(dat)
+#   
+#   if(length(fill_cols) < 2) {
+#     stop('fill_cols must have length 2 or greater')
+#   }
+#   
+#   for(i in seq_along(fill_cols)) {
+#     
+#     fill_col <- fill_cols[i]
+#     ind_cols <- setdiff(fill_cols, fill_col)
+#     
+#     for(j in seq_along(ind_cols)) {
+#       
+#       for(k in seq_along(gaps)) {
+#         
+#         to_fill <- dat[is.na(get(fill_col))] 
+#         ind_col <- ind_cols[j]
+#         n_na    <- sum(is.na(to_fill[[ind_col]]))
+#         
+#         if(n_na == 0) {
+#           
+#           form    <- as.formula(paste0(fill_col, '~', ind_col))
+#           fit     <- lm(form, dat)
+#           dat[is.na(get(fill_col)), (fill_col) := predict(fit, to_fill)]
+#           break
+#         }
+#       }
+#     }
+#   }
+#   
+#   return(dat)
+#   
+# }
 

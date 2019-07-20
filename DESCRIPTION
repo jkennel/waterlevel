@@ -2,7 +2,6 @@ Package: waterlevel
 Type: Package
 Title: Well Water Level Analysis Tools
 Version: 0.0.1
-Date: 2019-05-14
 Authors@R: c(
     person("Jonathan", "Kennel", email="jkennel@uoguelph.ca", role = c("aut", "cre")),
     person("Beth", "Parker", role="ths"))

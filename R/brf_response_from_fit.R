@@ -11,15 +11,20 @@
 #' 
 #' @export
 #' 
-response_from_fit <- function(fit){
+response_from_fit <- function (x, ...) {
+  UseMethod("response_from_fit", x)
+}
+
+#' @export
+response_from_fit.lm <- function(x){
   
   # hack for 'global variables NOTE
   variable = NULL
   
-  term_group <- attr(attr(fit$model, 'terms'), "term.labels")
-  term_subs  <- attr(fit$qr$qr, "assign")
+  term_group <- attr(attr(x$model, 'terms'), "term.labels")
+  #term_subs  <- attr(x$qr$qr, "assign")
   
-  co  <- as.matrix(coef(fit))
+  co  <- as.matrix(coef(x))
   nms <- rownames(co)
   
   resp <- list()
@@ -51,6 +56,44 @@ response_from_fit <- function(fit){
   
 }
 
+
+#' @export
+response_from_fit.data.table <- function(x){
+  
+  term_group <- x$term_group[[1]]
+  
+  co  <- x$coefs[[1]]$co_val
+  nms <- x$coefs[[1]]$co_name
+  
+  resp <- list()
+  for (i in seq_along(term_group)) {
+    
+    tg <- term_group[i]
+    nm <- nms[grep(tg, nms)]
+
+    co_sub <- as.matrix(co[nms %in% nm])
+
+    if (grepl('distributed_lag', tg)) {
+      resp[[i]] <- get_distributed_lag(co_sub, nm)
+    } else if (grepl('lag_matrix', tg) | grepl('lag_earthtide', tg)) {
+      resp[[i]] <- get_lag_matrix(co_sub, nm)
+    } else if (grepl('earthtide', tg)) {
+      resp[[i]] <- get_earthtide(co_sub, nm)
+    } else if (grepl('harmonic', tg)) {
+      resp[[i]] <- get_harmonic(co_sub, nm)
+    } else {
+      next
+    }
+    
+    if(all(resp[[i]]$variable == 'V1')){
+      resp[[i]][,  variable :=  tail(strsplit(nm, '_')[[1]], 1)]
+    }
+    
+  }
+  
+  return(rbindlist(resp))
+  
+}
 
 
 get_distributed_lag <- function(co, nm) {
