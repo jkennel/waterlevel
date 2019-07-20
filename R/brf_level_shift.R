@@ -133,6 +133,34 @@ gap_fill <- function(x,
 }
 
 
+#' get_fit_summary
+#'
+#' @param x data.table of water levels
+#' @param recipe recipe to apply
+#' @param start start subset time
+#' @param end end subset tiem
+#'
+#' @return data.table of sumamry
+#' @export
+#'
+get_fit_summary <- function(x, recipe, start, end) {
+  
+  y <- x[datetime %between% c(start, end)]
+  
+  dat <- recipe %>%
+    prep(training = y) %>%
+    portion()
+  
+  fit <- lm(outcome~distributed_lag + lag_earthtide + datetime + level_shift -1, 
+            dat,  
+            x = FALSE, y = FALSE, tol = 1e-50)
+  
+  out <- summarize_lm(fit)
+  out[, `:=` (coef = list(summarize_coef(fit)))]
+  
+  out
+}
+
 #' gap_fill2
 #'
 #' @param x gap data.table 
@@ -284,29 +312,31 @@ stretch_interp <- function(start_val = NA,
 # dat[50:70, z := NA_real_]
 # dat[10:12, y := NA_real_]
 # 
-# fill_lm <- function(dat, fill_cols, partial = FALSE) {
-#   
+# fill_lm <- function(dat,
+#                     fill_cols, 
+#                     partial = FALSE) {
+# 
 #   dat <- copy(dat)
-#   
+# 
 #   if(length(fill_cols) < 2) {
 #     stop('fill_cols must have length 2 or greater')
 #   }
-#   
+# 
 #   for(i in seq_along(fill_cols)) {
-#     
+# 
 #     fill_col <- fill_cols[i]
 #     ind_cols <- setdiff(fill_cols, fill_col)
-#     
+# 
 #     for(j in seq_along(ind_cols)) {
-#       
+# 
 #       for(k in seq_along(gaps)) {
-#         
-#         to_fill <- dat[is.na(get(fill_col))] 
+# 
+#         to_fill <- dat[is.na(get(fill_col))]
 #         ind_col <- ind_cols[j]
 #         n_na    <- sum(is.na(to_fill[[ind_col]]))
-#         
+# 
 #         if(n_na == 0) {
-#           
+# 
 #           form    <- as.formula(paste0(fill_col, '~', ind_col))
 #           fit     <- lm(form, dat)
 #           dat[is.na(get(fill_col)), (fill_col) := predict(fit, to_fill)]
@@ -315,8 +345,8 @@ stretch_interp <- function(start_val = NA,
 #       }
 #     }
 #   }
-#   
+# 
 #   return(dat)
-#   
+# 
 # }
 
