@@ -81,7 +81,6 @@ find_level_shift <- function(x,
 
 
 
-
 #' gap_fill
 #'
 #' @param x data.table of water levels
@@ -140,8 +139,10 @@ gap_fill <- function(x,
 #' @param start start subset time
 #' @param end end subset tiem
 #'
-#' @return data.table of sumamry
+#' @return data.table summary
 #' @export
+#'
+#'
 #'
 get_fit_summary <- function(x, recipe, start, end) {
   
@@ -151,15 +152,75 @@ get_fit_summary <- function(x, recipe, start, end) {
     prep(training = y) %>%
     portion()
   
-  fit <- lm(outcome~distributed_lag + lag_earthtide + datetime + level_shift -1, 
+  form <- formula_from_recipe(recipe = rec)
+  fit <- lm(form, 
             dat,  
             x = FALSE, y = FALSE, tol = 1e-50)
   
   out <- summarize_lm(fit)
+  out[, `:=` (rank = fit$rank)]
+  out[, start := start]
+  out[, end := end]
+  out[, `:=` (recipe = list(recipe))]
   out[, `:=` (coef = list(summarize_coef(fit)))]
+  out[, `:=` (formula = list(form))]
+  out[, `:=` (terms = list(terms))]
+  out[, `:=` (pivot = list(qr(fit)$pivot))]
   
   out
+  
 }
+
+pree <- function(x, fit_dt) {
+  
+  dat <- recipe %>%
+    prep(training = x) %>%
+    portion()
+  
+  terms <- labels(terms(fit_dt$form))
+  
+  term_names <- lapply(select(dat, terms), colnames)
+  
+  lapply(term_names, function(x) {
+    select
+  })
+  
+  terms <- names(dat)
+  
+  
+  
+}
+
+
+
+
+
+
+#' formula_from_recipe
+#' guess formula from recipe
+#'
+#' @param recipe recipe to apply
+#'
+#' @return formula
+#' @export
+#'
+formula_from_recipe <- function(recipe) {
+  
+  terms <- na.omit(
+    vapply(recipe$steps, FUN = function(x) {
+      as.character(x$role)
+    }, FUN.VALUE = 'character'))
+  
+  rhs <- paste(terms, collapse = '+')
+  
+  if('level_shift' %in% terms) {
+    add <- '-1'
+    rhs <- paste0(rhs, add)
+  }
+  
+  as.formula(paste0('outcome', '~', rhs))
+}
+
 
 #' gap_fill2
 #'
@@ -349,4 +410,138 @@ stretch_interp <- function(start_val = NA,
 #   return(dat)
 # 
 # }
+
+
+# library(data.table)
+# library(recipes)
+# library(waterlevel)
+# 
+# dt <- data.table(x = rnorm(100000), y = rnorm(100000), z = rnorm(100000), datetime = 1:100000)
+# 
+# recipe <- recipe(y+z~x, dt[1]) %>%
+#   step_distributed_lag(x, knots = c(0, 2, 5)) %>%
+#   step_mutate(test = x^2, role = 'squared')
+# 
+# tmp <- fit_gaps(dt, recipe = recipe)
+# dtnew <- data.table(x = rnorm(1000), y = rnorm(1000), z = rnorm(1000))
+# aa <- predict_gaps(dtnew, fits = tmp)
+
+
+#' find_gaps
+#'
+#' @param x the data set (data.table)
+#' @param dep_var the dependent variable name (character)
+#' @param time_var the time variable name (character)
+#' @param time_interval the delta t (numeric)
+#'
+#' @return data.table of gaps
+#' @export
+#'
+find_gaps <- function(x,
+                      dep_var = 'val', 
+                      time_var = 'datetime', 
+                      time_interval = 1) {
+  
+  midpoint <- NULL
+  
+  # remove times with no values
+  tms <- x[!is.na(get(dep_var))][[time_var]]
+  
+  # find locations of gaps
+  wh  <- which(diff(as.numeric(tms)) != time_interval)
+  n   <- length(tms)
+  
+  subs <- list()
+  
+  if (length(wh) == 0) {
+    subs <- data.table(start = tms[1], end = tms[n])
+  } else {
+    for (i in 1:(length(wh))) {
+      
+      start <- tms[(wh[i])]
+      end   <- tms[(wh[i]) + 1]
+      
+      subs[[i]] <- data.table(start     = start, 
+                              end       = end,
+                              start_val = x[get(time_var) == start][[dep_var]],
+                              end_val   = x[get(time_var) == end][[dep_var]])
+    }
+  }
+  
+  subs <- rbindlist(subs)
+  
+  subs[, midpoint := as.POSIXct((as.numeric(start) + as.numeric(end)) / 2, 
+                                origin = '1970-01-01', tz = 'UTC')]
+  
+  return(subs)
+  
+}
+
+
+#' fit_gaps
+#'
+#' @param x the data set (data.table)
+#' @param recipe the recipe to apply
+#' @param time_var the time variable name (character)
+#'
+#' @return data.table of fit results
+#' @export
+#'
+fit_gaps <- function(x, recipe, time_var = 'datetime') {
+  
+  form <- formula_from_recipe(recipe)
+  
+  fit_dat <- recipe %>% 
+    prep(training = x) %>% 
+    portion()
+  
+  fit <- lm(formula = form, data = fit_dat,  
+            x = FALSE, y = FALSE, tol = 1e-50)
+  
+  out <- summarize_lm(fit)
+  out[, `:=` (recipe      = .(recipe))]
+  out[, `:=` (start_train = min(x$datetime))]
+  out[, `:=` (end_train   = max(x$datetime))]
+  out
+  
+}
+
+
+#' predict_gaps
+#'
+#' @param x the data set (data.table)
+#' @param fits data.table of fits
+#'
+#' @return data.table of predictions
+#' @export
+#'
+predict_gaps <- function(x, fits) {
+  
+  recipe      <- fits[['recipe']][[1]]
+  term_labels <- fits[['term_labels']][[1]]
+  coefs       <- fits[['coefs']][[1]]
+    
+  fit_dat <- recipe %>% 
+    prep(training = x) %>% 
+    portion()
+  
+  out <- matrix(NA_real_, 
+                nrow = nrow(fit_dat), 
+                ncol = length(term_labels))
+  for (i in seq_along(term_labels)) {
+    
+    term_label <- term_labels[i]
+    wh <- grep(term_label, coefs$name)
+    out[, i] <- fit_dat[[term_label]] %*% as.matrix(coefs[wh, list(Estimate)])
+  
+  }
+
+  out <- as.data.table(out)
+  setnames(out, term_labels)
+  
+  out
+  
+}
+
+
 

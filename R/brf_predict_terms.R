@@ -69,4 +69,84 @@ predict_terms <-
     return(predictor)
   }
 
+# 
+# predict_terms2 <-
+#   function(terms, form, coef, piv, rank, dat, ...)
+#   {
+#     #tt <- terms(object)
+#     # if(!inherits(object, "lm"))
+#     #   warning("calling predict.lm(<fake-lm-object>) ...")
+#     
+#     mm <- X <- model.matrix(form, dat)
+#     #offset <- object$offset
+#     
+#     n <- nrow(dat) #length(object$residuals) # NROW(qr(object)$qr)
+#     p <- object$rank
+#     p1 <- seq_len(p)
+#     #piv <- if(p) qr(object)$pivot[p1]
+#     #beta <- as.matrix(object$coefficients)
+#     
+#     aa <- attr(mm, "assign")
+#     ll <- attr(tt, "term.labels")
+#     hasintercept <- attr(tt, "intercept") > 0L
+#     if (hasintercept) ll <- c("(Intercept)", ll)
+#     aaa <- factor(aa, labels = ll)
+#     asgn <- split(order(aa), aaa)
+#     if (hasintercept) {
+#       asgn$"(Intercept)" <- NULL
+#       avx <- colMeans(mm)
+#       termsconst <- colSums(avx[piv] * beta[piv, , drop = FALSE])
+#     }
+#     nterms <- length(asgn)
+#     if(nterms > 0) {
+#       predictor <- matrix(ncol = nterms * ncol(beta), nrow = NROW(X))
+#       if (ncol(beta) > 1) {
+#         cn <- apply(expand.grid(colnames(beta), names(asgn)), 1, paste, collapse = '_') #jrk
+#       } else {
+#         cn <- names(asgn)
+#       }
+#       dimnames(predictor) <- list(rownames(X), cn)
+#       if(hasintercept)
+#         X <- sweep(X, 2L, avx, check.margin=FALSE)
+#       unpiv <- rep.int(0L, NCOL(X))
+#       unpiv[piv] <- p1
+#       ## Predicted values will be set to 0 for any term that
+#       ## corresponds to columns of the X-matrix that are
+#       ## completely aliased with earlier columns.
+#       for (i in seq.int(1L, nterms, length.out = nterms)) {
+#         iipiv <- asgn[[i]]      # Columns of X, ith term
+#         ii <- unpiv[iipiv]      # Corresponding rows of Rinv
+#         iipiv[ii == 0L] <- 0L
+#         inds <- 1:ncol(beta) + (i-1) * ncol(beta)             #jrk
+#         predictor[, inds] <-                                  #jrk
+#           if(any(iipiv > 0L)) X[, iipiv, drop = FALSE] %*% beta[iipiv, , drop = FALSE]
+#         else 0
+#       }
+#       attr(predictor, 'constant') <- if (hasintercept) termsconst else 0
+#     }
+#     
+#     return(predictor)
+#   }
+# 
+# 
+# library(recipes)
+# lg <- c(0, 5, 20)
+# 
+# rec <- recipe(y+z~., aa) %>% 
+#   step_distributed_lag(x, knots = lg) %>% 
+#   prep() %>%
+#   portion()
+# 
+# library(data.table)
+# library(waterlevel)
+# aa <- data.table(x = rnorm(100), y = rnorm(100), z = rnorm(100)) 
+# 
+# fit <- lm(outcome ~ distributed_lag, rec)
+# tt <- terms(fit)
+# form <- formula(fit)
+# beta <- as.matrix(fit$coefficients)
+# rank <- fit$rank
+# dat <- rec
+# 
+# predict_terms(fit)
 

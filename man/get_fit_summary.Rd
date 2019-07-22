@@ -16,7 +16,7 @@ get_fit_summary(x, recipe, start, end)
 \item{end}{end subset tiem}
 }
 \value{
-data.table of sumamry
+data.table summary
 }
 \description{
 get_fit_summary
