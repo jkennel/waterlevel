@@ -210,7 +210,7 @@ formula_from_recipe <- function(recipe) {
     vapply(recipe$steps, FUN = function(x) {
       as.character(x$role)
     }, FUN.VALUE = 'character'))
-  
+  terms <- terms[terms != 'exclude']
   rhs <- paste(terms, collapse = '+')
   
   if('level_shift' %in% terms) {
@@ -481,6 +481,7 @@ find_gaps <- function(x,
 #' fit_gaps
 #'
 #' @param x the data set (data.table)
+#' @param y subset data.table with (start and end)
 #' @param recipe the recipe to apply
 #' @param time_var the time variable name (character)
 #'
@@ -488,6 +489,7 @@ find_gaps <- function(x,
 #' @export
 #'
 fit_gaps <- function(x, recipe, time_var = 'datetime') {
+  
   
   form <- formula_from_recipe(recipe)
   
@@ -499,6 +501,7 @@ fit_gaps <- function(x, recipe, time_var = 'datetime') {
             x = FALSE, y = FALSE, tol = 1e-50)
   
   out <- summarize_lm(fit)
+  #print(out)
   out[, `:=` (recipe      = .(recipe))]
   out[, `:=` (start_train = min(x$datetime))]
   out[, `:=` (end_train   = max(x$datetime))]
@@ -515,12 +518,16 @@ fit_gaps <- function(x, recipe, time_var = 'datetime') {
 #' @return data.table of predictions
 #' @export
 #'
-predict_gaps <- function(x, fits) {
+predict_gaps <- function(x, fits, term_labels = NULL) {
   
   recipe      <- fits[['recipe']][[1]]
-  term_labels <- fits[['term_labels']][[1]]
+  
+  if(is.null(term_labels)) {
+    term_labels <- fits[['term_labels']][[1]]
+  }
+  
   coefs       <- fits[['coefs']][[1]]
-    
+  setkey(coefs, name)
   fit_dat <- recipe %>% 
     prep(training = x) %>% 
     portion()
@@ -528,11 +535,13 @@ predict_gaps <- function(x, fits) {
   out <- matrix(NA_real_, 
                 nrow = nrow(fit_dat), 
                 ncol = length(term_labels))
+  
   for (i in seq_along(term_labels)) {
     
     term_label <- term_labels[i]
-    wh <- grep(term_label, coefs$name)
-    out[, i] <- fit_dat[[term_label]] %*% as.matrix(coefs[wh, list(Estimate)])
+    nms <- paste0(term_label, colnames(fit_dat[[term_label]]))
+    
+    out[, i] <- fit_dat[[term_label]] %*% as.matrix(coefs[nms, list(Estimate)])
   
   }
 

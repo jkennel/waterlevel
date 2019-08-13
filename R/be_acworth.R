@@ -78,20 +78,27 @@ be_acworth_eq_4 <- function(s2_gw,
 #' @return barometric efficiency
 #' @export
 #'
-be_acworth <- function(dat, wl = 'wl', ba = 'ba', et = 'et', inverse = TRUE, ...) {
-  
-  spec <- transfer_acworth(dat, vars = c(wl, ba, et), 
-                           time = 'datetime', ...)
-  
+be_acworth <- function(dat, wl = 'wl', ba = 'ba', et = 'et', method = 'spec_pgram', inverse = TRUE, ...) {
   
   m2_freq <- 1.9322736
   s2_freq <- 2.0000000
   
+  if(et == 0) {
+    spec <- transfer_acworth(dat, vars = c(wl, ba), 
+                             time = 'datetime', ...)
+  } else {
+    
+    spec <- transfer_acworth(dat, vars = c(wl, ba, et), 
+                             time = 'datetime', ...)
+  }
+  
   m2 <- spec[which.min(abs(spec$frequency-m2_freq)),]
   s2 <- spec[which.min(abs(spec$frequency-s2_freq)),]
   
-  # print(m2)
-  # print(s2)
+  if(et == 0) {
+    return(s2$wl_amp/s2$ba_amp)
+  }
+  
   be_acworth_eq_4(s2_gw = s2$wl_amp, s2$et_amp, s2$ba_amp,
                   m2_et = m2$et_amp, m2_gw = m2$wl_amp, 
                   d_phase = s2$d_phase, inverse = inverse)
@@ -107,17 +114,17 @@ transfer_acworth <- function(dat, vars, time = 'datetime',
     
     
     spec_arr <- spec_pgram(as.matrix(dat[, vars, with = FALSE]), ...)
-    spec <- matrix(NA_complex_, ncol = 3, nrow = nrow(spec_arr))
-    n_padded <- nextn(nrow(dat))
+    spec     <- matrix(NA_complex_, ncol = length(vars), nrow = nrow(spec_arr))
+    n_padded <- nrow(spec_arr)
     df <- 1 / n_padded
     frequency <- seq.int(from = df, by = df, 
-                         length.out = floor(n_padded/2)) * 86400/t_interval
+                         length.out = n_padded) * 86400/t_interval
     
     
   } else if (method == 'spec_welch') {
     
     spec_arr <- spec_welch(as.matrix(dat[, vars, with = FALSE]), ...)
-    spec <- matrix(NA_complex_, ncol = 3, nrow = nrow(spec_arr))
+    spec <- matrix(NA_complex_, ncol = length(vars), nrow = nrow(spec_arr))
     n <- 2 * (nrow(spec) - 1)
     dt <- (n / 86400)
     frequency <- seq.int(from = 1/n, by = 1/n,
@@ -131,11 +138,19 @@ transfer_acworth <- function(dat, vars, time = 'datetime',
   for(i in 1:length(vars)) { spec[,i] <- spec_arr[, i, i] }
   colnames(spec) <- vars
   
-  amp   <-  sqrt(abs(Re(spec)))
-  phase <-  Arg(spec_arr[, 2, 3])
-  
-  df <- data.table(frequency, amp, phase)
-  setnames(df, c('frequency', 'wl_amp', 'ba_amp', 'et_amp', 'd_phase'))
+
+  if(length(vars) == 2) {
+    #print(str(spec))
+    amp <-  sqrt(abs(Re(spec)))
+    df  <- data.table(frequency, amp)
+    setnames(df, c('frequency', 'wl_amp', 'ba_amp'))
+  } else if (length(vars) == 3) {
+    amp   <-  sqrt(abs(Re(spec)))
+    phase <-  Arg(spec_arr[, 2, 3])
+    
+    df <- data.table(frequency, amp, phase)
+    setnames(df, c('frequency', 'wl_amp', 'ba_amp', 'et_amp', 'd_phase'))
+  }
   
   return(df)
   

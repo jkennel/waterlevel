@@ -56,14 +56,14 @@ response_from_fit.lm <- function(x){
   
 }
 
-
+# for usewith
 #' @export
 response_from_fit.data.table <- function(x){
   
-  term_group <- x$term_group[[1]]
+  term_group <- x$term_labels[[1]]
   
-  co  <- x$coefs[[1]]$co_val
-  nms <- x$coefs[[1]]$co_name
+  co  <- x$coefs[[1]]$Estimate
+  nms <- x$coefs[[1]]$name
   
   resp <- list()
   for (i in seq_along(term_group)) {

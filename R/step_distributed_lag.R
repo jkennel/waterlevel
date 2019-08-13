@@ -44,6 +44,8 @@ step_distributed_lag <-
            trained = FALSE,
            knots = 1,
            spline_fun = splines::ns,
+           n_subset = 1,
+           n_shift = 0,
            prefix = "distributed_lag_",
            default = NA,
            columns = NULL,
@@ -57,6 +59,8 @@ step_distributed_lag <-
         trained = trained,
         knots = knots,
         spline_fun = spline_fun,
+        n_subset = n_subset,
+        n_shift = n_shift,
         default = default,
         prefix = prefix,
         columns = columns,
@@ -67,7 +71,7 @@ step_distributed_lag <-
   }
 
 step_distributed_lag_new <-
-  function(terms, role, trained, knots, spline_fun, default, prefix, columns, skip, id) {
+  function(terms, role, trained, knots, spline_fun, n_subset, n_shift, default, prefix, columns, skip, id) {
     step(
       subclass = "distributed_lag",
       terms = terms,
@@ -75,6 +79,8 @@ step_distributed_lag_new <-
       trained = trained,
       knots = knots,
       spline_fun = spline_fun,
+      n_subset = n_subset,
+      n_shift = n_shift,
       default = default,
       prefix = prefix,
       columns = columns,
@@ -92,6 +98,8 @@ prep.step_distributed_lag <- function(x, training, info = NULL, ...) {
     trained = TRUE,
     knots = x$knots,
     spline_fun = x$spline_fun,
+    n_subset = x$n_subset,
+    n_shift = x$n_shift,
     default = x$default,
     prefix = x$prefix,
     columns = terms_select(x$terms, info = info),
@@ -109,12 +117,14 @@ bake.step_distributed_lag <- function(object, new_data, ...) {
   
   
   
-  bind_cols(new_data, 
+  bind_cols(new_data[seq(object$n_shift+1, nrow(new_data), by = object$n_subset),],
             as_tibble(distributed_lag(new_data[[object$columns]],
                                       object$knots,
-                                      object$spline_fun, 
-                                      object$columns)))
-  
+                                      object$spline_fun,
+                                      object$columns,
+                                      object$n_subset,
+                                      object$n_shift)))
+
 }
 
 

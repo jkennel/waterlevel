@@ -21,6 +21,7 @@ synthetic <- function(sd_noise = 0.0002,
                       linear_trend = 1e-7,
                       n = 14 * 86400,
                       seed = NULL,
+                      scale = 0.5,
                       baro_kernel = NULL) {
   
   if (!is.null(seed)) {
@@ -41,7 +42,7 @@ synthetic <- function(sd_noise = 0.0002,
   
   
   baro_response <- baro
-  baro_response[!is.na(baro_response)] <- 0.5 * convolve_fft(x = na.omit(baro),
+  baro_response[!is.na(baro_response)] <- scale * convolve_fft(x = na.omit(baro),
                                                              y = baro_kernel)
   
   lin_trend <- linear_trend * as.numeric(datetime)
@@ -54,4 +55,51 @@ synthetic <- function(sd_noise = 0.0002,
                             lin_trend)))
   
 }
+
+
+
+#' synthetic_wl
+#'
+#' This function is used for testing purposes
+#'
+#' @param sd_noise standard deviation of random noise to add (numeric)
+#' @param sd_noise_trend standard deviation of noise to add to generate a 
+#' trend (numeric)
+#' @param linear_trend magnitude of linear trend in time (numeric)
+#' @param n length of time series in seconds (integer)
+#' @param seed random number seed for reproducibility (numeric)
+#' @param baro_kernel vector values to convolve with barometric pressure
+#'
+#' @return data.table of synthetic water levels and barometric pressure
+#' 
+#' @export
+#' 
+#' @importFrom stats rnorm
+#'
+synthetic_wl <- function(baro,
+                         datetime,
+                         sd_noise = 0,
+                         linear_trend = 0,
+                         intercept = 0,
+                         seed = NULL,
+                         kernel = NULL) {
+  
+  if (!is.null(seed)) {
+    set.seed(seed)
+  }
+  
+  # generate synthetic barometric pressure from fft coefs
+  noise_wl <- rnorm(length(baro), sd = sd_noise)
+  
+  wl <- convolve_fft(x = baro,
+                     y = kernel)
+  
+  lin_trend <- linear_trend * as.numeric(datetime)
+  
+  wl <- wl + lin_trend + noise_wl + intercept
+  
+  return(wl)
+  
+}
+
 

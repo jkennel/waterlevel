@@ -41,11 +41,24 @@ using namespace Rcpp;
 arma::vec calc_b_vals(int b,
                       const arma::vec& wb) {
 
-  arma::vec ret = arma::pow((sin(b * log10(wb)) / (b * log10(wb))), 4);
+  arma::vec win = b * log10(wb);
+  arma::vec ret = arma::pow(sin(win) / (win), 4);
   ret.elem(arma::find_nonfinite(ret)).ones();
 
   return(ret);
 }
+
+// // [[Rcpp::export]]
+// arma::vec calc_b_vals2(int b,
+//                       const arma::vec& wb) {
+//   
+//   
+//   arma::vec ret = arma::pow((sin(b * log10(wb)) / (b * log10(wb))), 4);
+//   ret.elem(arma::find_nonfinite(ret)).ones();
+//   
+//   return(ret);
+// }
+
 
 // [[Rcpp::export]]
 double konno_ohmachi(const arma::vec& b_vals,

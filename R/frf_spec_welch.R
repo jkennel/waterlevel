@@ -48,7 +48,8 @@ spec_welch <- function (x,
 
   
   # pre-allocate matrices
-  n_out <- (n/2+1)
+  #n_out <- (n/2+1)
+  n_out <- n
   pgram <- array(0i, dim = c(n_out, nser, nser))
   xfft  <- matrix(0i, nrow = n_out, ncol = nser)
   
@@ -83,14 +84,14 @@ spec_welch <- function (x,
     for (j in 1L:ncol(x)) {
       for (k in 1L:ncol(x)) {
         
-        pgram[, j, k] <- pgram[, j, k] + xfft[, j] * Conj(xfft[, k])
-        
-        if (k < j) {
+        if(k >= j) {
+          pgram[, j, k] <- pgram[, j, k] + xfft[, j] * Conj(xfft[, k])
+        } else {
           pgram[, j, k] <- Conj(pgram[, k, j])
         }
         
         ## value at zero is invalid as mean has been removed, so interpolate:
-        #pgram[1, j, k] <- 0.5 * (pgram[2, j, k] + pgram[n_out, j, k])
+        pgram[1, j, k] <- 0.5 * (pgram[2, j, k] + pgram[n_out, j, k])
       }
     }
     
@@ -98,8 +99,12 @@ spec_welch <- function (x,
   }
   
   #pgram <- pgram / n_ffts
-  pgram <- pgram[-1,,] / scale
+  #pgram <- pgram[-1,,] / scale
+  pgram <- pgram / scale
   
   
   return(pgram)
 }
+
+
+

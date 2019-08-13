@@ -6,8 +6,9 @@
 \usage{
 step_distributed_lag(recipe, ..., role = "distributed_lag",
   trained = FALSE, knots = 1, spline_fun = splines::ns,
-  prefix = "distributed_lag_", default = NA, columns = NULL,
-  skip = FALSE, id = rand_id("distributed_lag"))
+  n_subset = 1, n_shift = 0, prefix = "distributed_lag_",
+  default = NA, columns = NULL, skip = FALSE,
+  id = rand_id("distributed_lag"))
 }
 \arguments{
 \item{recipe}{A recipe object. The step will be added to the sequence of
@@ -26,6 +27,10 @@ have been estimated.}
 \item{knots}{specific knots for the lagging process}
 
 \item{spline_fun}{spline function to use i.e. splines::ns, splines::bs}
+
+\item{n_subset}{for distributed_lag parallel}
+
+\item{n_shift}{for distributed_lag parallel}
 
 \item{prefix}{A prefix for generated column names, default to 
 "distributed_lag_".}

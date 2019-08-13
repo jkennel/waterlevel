@@ -54,11 +54,11 @@ spec_pgram <-
     
     ## Estimate spectral density from (smoothed) periodogram.
     series <- deparse(substitute(x))
-    x <- na.action(as.ts(x))
-    xfreq <- frequency(x)
-    x <- as.matrix(x)
-    N <- N0 <- nrow(x)
-    nser <- ncol(x)
+    x      <- na.action(as.ts(x))
+    xfreq  <- frequency(x)
+    x      <- as.matrix(x)
+    N      <- N0 <- nrow(x)
+    nser   <- ncol(x)
     
     if(!is.null(spans)) # allow user to mistake order of args
       kernel <- {
@@ -71,17 +71,22 @@ spec_pgram <-
     
     if (detrend) {
       t <- 1L:N - (N + 1)/2
-      sumt2 <- N * (N^2 - 1)/12
+      sumt2 <- N * (N^2 - 1) / 12
       
       for (i in 1L:ncol(x))
         x[, i] <- x[, i] - mean(x[, i]) - sum(x[, i] * t) * t/sumt2
       
     } else if (demean) {
-      x <- sweep(x, 2, colMeans(x), check.margin=FALSE)
+      x <- sweep(x, MARGIN = 2,
+                 STATS = colMeans(x), 
+                 check.margin=FALSE, 
+                 FUN = '-')
     }
-    
+
     ## apply taper:
     x <- spec.taper(x, taper)
+    
+    
     ## to correct for tapering: Bloomfield (1976, p. 194)
     ## Total taper is taper*2
     # u2 <- (1 - (5/8) * taper * 2)
@@ -93,13 +98,14 @@ spec_pgram <-
     }
     
     NewN <- if(fast) nextn(N) else N
+    print(nrow(x))
     x <- rbind(x, matrix(0, nrow = (NewN - N), ncol = ncol(x)))
     N <- nrow(x)
+    print(nrow(x))
     
     Nspec <- floor(N/2)
     
-    #freq <- seq.int(from = xfreq/N, by = xfreq/N, length.out = Nspec)
-    
+
     # use fftw package to calculate ffts for long series
     if (N > 1e5) {
       
@@ -111,22 +117,23 @@ spec_pgram <-
     } else {
       xfft <- mvfft(x)
     }
-    
-    pgram <- array(NA, dim = c(N, ncol(x), ncol(x)))
+
+    pgram <- array(NA_complex_, dim = c(N, ncol(x), ncol(x)))
     
     # only calculate upper triangle vectors - jrk
     for (i in 1L:ncol(x)) {
       for (j in i:ncol(x)) { # N0 = #{non-0-padded}
-        pgram[, i, j] <- xfft[, i] * Conj(xfft[, j]) / (N0 * xfreq)
+        pgram[, i, j] <- (xfft[, i] * Conj(xfft[, j])) / (N0 * xfreq)
+        
         ## value at zero is invalid as mean has been removed, so interpolate:
-        pgram[1, i, j] <- 0.5*(pgram[2, i, j] + pgram[N, i, j])
+        pgram[1, i, j] <- 0.5 * (pgram[2, i, j] + pgram[N, i, j])
       }
     }
     
     if(!is.null(kernel)) {
       # fill in lower triangle with the complex conjugate to save compuation - jrk
       k_fft <- fftw::FFT(pad_kernel(kernel, N))
-      
+
       for (i in 1L:ncol(x)) for (j in 1:ncol(x))
         if(i <= j) {
           if (N > 1e5) {
@@ -137,9 +144,16 @@ spec_pgram <-
         } else {
           pgram[, i, j] <- Conj(pgram[, j, i])
         }
+
+      # for (i in 1L:ncol(x)) for (j in 1:ncol(x)) {
+      #   if(i <= j) {
+      #     pgram[, i, j]  <- stats::kernapply(pgram[, i, j], kernel, circular = TRUE)
+      #   }
+      # }
+      
     }
 
-    pgram <- pgram[2:(Nspec+1),,, drop=FALSE]
+    #pgram <- pgram[2:(Nspec+1),,, drop=FALSE]
 
     return(pgram)
 

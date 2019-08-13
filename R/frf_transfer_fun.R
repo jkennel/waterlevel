@@ -1,4 +1,3 @@
-
 #' transfer_fun
 #'
 #' @param dat data that has the independent and dependent variables (data.table)
@@ -17,16 +16,18 @@ transfer_fun <- function(dat, vars, time = 'datetime', method = 'spec_pgram', ..
   
   if (method == 'spec_pgram') {
     
-    pgram     <- spec_pgram(as.matrix(dat[, vars, with = FALSE]), spans = 3)
-    n_padded  <- nextn(nrow(dat))
-    df        <- 1 / n_padded
+    pgram    <- spec_pgram(as.matrix(dat[, vars, with = FALSE]), ...)
+    n_padded <- nrow(pgram)
+    df       <- 1 / n_padded
+    # frequency <- seq.int(from = df, by = df, 
+    #                      length.out = floor(n_padded/2)) * 86400/t_interval
     frequency <- seq.int(from = df, by = df, 
-                         length.out = floor(n_padded/2)) * 86400/t_interval
+                         length.out = n_padded) * 86400/t_interval
     
   } else if (method == 'spec_welch') {
     
     pgram <- spec_welch(as.matrix(dat[, vars, with = FALSE]), ...)
-    n <- 2 * (nrow(pgram) - 1)
+    n <- (nrow(pgram) - 1)
     dt <- (n / 86400)
     frequency <- seq.int(from = 1/n, by = 1/n, 
                          length.out = nrow(pgram)) * 86400/t_interval
@@ -47,6 +48,8 @@ transfer_fun <- function(dat, vars, time = 'datetime', method = 'spec_pgram', ..
   # coherency
   coherency <- coh_phase(pgram)
   
+  # spectrum
+  spectrum <- spec_from_pgram(pgram)
   
   tf_name <- c()
   gain_name <- c()
@@ -63,17 +66,27 @@ transfer_fun <- function(dat, vars, time = 'datetime', method = 'spec_pgram', ..
   for (i in 1:(length(vars)-1)) {
     for (j in (1+i):(length(vars))) {
       coh_name[k]  <- paste0('coherency_', vars[i], '_', vars[j]) 
-      coh_name[k+length(vars)]  <- paste0('coherency_phase_', vars[i], '_', vars[j]) 
+      k <- k + 1
+      coh_name[k]  <- paste0('coherency_phase_', vars[i], '_', vars[j]) 
       k <- k + 1
     }
   }
+  
   
   colnames(tf) <- tf_name
   colnames(gain) <- gain_name
   colnames(phase) <- phase_name
   colnames(coherency) <- coh_name
+  colnames(spectrum) <- vars
   
-  return(as_tibble(cbind(frequency, tf, gain, phase, coherency)))
+  # print(str(frequency))
+  # print(str(tf))
+  # print(str(gain))
+  # print(str(phase))
+  # print(str(coherency))
+  tf <- as_tibble(tf)
+  
+  return(cbind(frequency = Re(frequency), tf, Re(gain), Re(phase), Re(coherency), Re(spectrum)))
 }
 
 

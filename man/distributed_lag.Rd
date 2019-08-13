@@ -4,7 +4,8 @@
 \alias{distributed_lag}
 \title{distributed_lag}
 \usage{
-distributed_lag(x, knots, spline_fun = ns, lag_name = "")
+distributed_lag(x, knots, spline_fun = ns, lag_name = "",
+  n_subset = 1, n_shift = 0)
 }
 \arguments{
 \item{x}{numeric vector to lag}
@@ -14,6 +15,10 @@ distributed_lag(x, knots, spline_fun = ns, lag_name = "")
 \item{spline_fun}{spline function to use i.e. splines::ns, splines::bs}
 
 \item{lag_name}{name of variable to lag}
+
+\item{n_subset}{for distributed_lag parallel}
+
+\item{n_shift}{for distributed_lag parallel}
 }
 \value{
 matrix with distributed lag terms

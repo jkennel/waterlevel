@@ -4,8 +4,8 @@
 \alias{be_acworth}
 \title{be_acworth_eq_4}
 \usage{
-be_acworth(dat, wl = "wl", ba = "ba", et = "et", inverse = TRUE,
-  ...)
+be_acworth(dat, wl = "wl", ba = "ba", et = "et",
+  method = "spec_pgram", inverse = TRUE, ...)
 }
 \arguments{
 \item{dat}{data that has the independent and dependent variables (data.table)}

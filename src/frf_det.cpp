@@ -6,12 +6,6 @@ using namespace arma;
 using namespace Rcpp;
 
 
-
-
-
-
-
-
 struct det_worker: public Worker {
 
   // input vector of matrices

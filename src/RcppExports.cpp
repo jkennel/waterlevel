@@ -6,34 +6,6 @@
 
 using namespace Rcpp;
 
-// weeks_1979
-double weeks_1979(double lag, double D, double L, double precision);
-RcppExport SEXP _waterlevel_weeks_1979(SEXP lagSEXP, SEXP DSEXP, SEXP LSEXP, SEXP precisionSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< double >::type lag(lagSEXP);
-    Rcpp::traits::input_parameter< double >::type D(DSEXP);
-    Rcpp::traits::input_parameter< double >::type L(LSEXP);
-    Rcpp::traits::input_parameter< double >::type precision(precisionSEXP);
-    rcpp_result_gen = Rcpp::wrap(weeks_1979(lag, D, L, precision));
-    return rcpp_result_gen;
-END_RCPP
-}
-// vadose_response
-arma::vec vadose_response(const arma::vec time, double D, double L, double precision);
-RcppExport SEXP _waterlevel_vadose_response(SEXP timeSEXP, SEXP DSEXP, SEXP LSEXP, SEXP precisionSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const arma::vec >::type time(timeSEXP);
-    Rcpp::traits::input_parameter< double >::type D(DSEXP);
-    Rcpp::traits::input_parameter< double >::type L(LSEXP);
-    Rcpp::traits::input_parameter< double >::type precision(precisionSEXP);
-    rcpp_result_gen = Rcpp::wrap(vadose_response(time, D, L, precision));
-    return rcpp_result_gen;
-END_RCPP
-}
 // harmonic
 Rcpp::NumericMatrix harmonic(arma::vec times, arma::vec& freq);
 RcppExport SEXP _waterlevel_harmonic(SEXP timesSEXP, SEXP freqSEXP) {
@@ -219,8 +191,6 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_waterlevel_weeks_1979", (DL_FUNC) &_waterlevel_weeks_1979, 4},
-    {"_waterlevel_vadose_response", (DL_FUNC) &_waterlevel_vadose_response, 4},
     {"_waterlevel_harmonic", (DL_FUNC) &_waterlevel_harmonic, 2},
     {"_waterlevel_check_lag", (DL_FUNC) &_waterlevel_check_lag, 3},
     {"_waterlevel_get_length", (DL_FUNC) &_waterlevel_get_length, 2},
