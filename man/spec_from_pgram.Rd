@@ -9,6 +9,9 @@ spec_from_pgram(pgram)
 \arguments{
 \item{pgram}{the periodogram}
 }
+\value{
+spectrum from the pgram
+}
 \description{
 spec_from_pgram
 }

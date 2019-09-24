@@ -20,6 +20,9 @@ frf_predict_terms(frf, x, time_col = "datetime", vars = c("wl",
 
 \item{limit}{gain must be lower than this value.  Often useful for Earth tides.}
 }
+\value{
+data.table of results
+}
 \description{
 frf_predict_terms
 }

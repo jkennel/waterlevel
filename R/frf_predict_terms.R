@@ -7,10 +7,9 @@
 #' @param coherency_cut values must have at least this coherency
 #' @param limit gain must be lower than this value.  Often useful for Earth tides. 
 #'
-#' @return
+#' @return data.table of results
 #' @export
 #'
-#' @examples
 frf_predict_terms <- function(frf,
                               x, 
                               time_col = 'datetime',
