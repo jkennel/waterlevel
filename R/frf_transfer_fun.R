@@ -36,6 +36,29 @@ transfer_fun <- function(dat, vars, time = 'datetime', method = 'spec_pgram', ..
     stop(paste(method, 'method not yet implemented'))
   }
   
+  if (length(vars) == 1) {
+    warning('only one variable provided to transfer_fun, returning the spectral density')
+    
+    if (method == 'spec_pgram') {
+      
+      dots <- list(...)
+      if ('taper' %in% names(dots)) {
+        u2 <- (1 - (5/8) * dots[['taper']] * 2)
+      } else {
+        u2 <- (1 - (5/8) * 0.1 * 2)
+      }
+      
+      return(data.table(frequency = Re(frequency), 
+                        phase     = Arg(pgram),
+                        amplitude = Re(pgram) / u2))
+    } else {
+      return(data.table(frequency = Re(frequency), 
+                        phase     = Arg(pgram),
+                        amplitude = Re(pgram)))
+    }
+    
+  }
+  
   # solve for transfer function
   tf    <- solve_tf_parallel(pgram)
   
@@ -59,7 +82,7 @@ transfer_fun <- function(dat, vars, time = 'datetime', method = 'spec_pgram', ..
     gain_name[i]  <- paste0('gain_',     vars[1], '_', vars[i+1])  
     phase_name[i] <- paste0('phase_',    vars[1], '_', vars[i+1])  
   }
-
+  
   
   coh_name <- c()
   k <- 1
@@ -88,6 +111,14 @@ transfer_fun <- function(dat, vars, time = 'datetime', method = 'spec_pgram', ..
   
   return(cbind(frequency = Re(frequency), tf, Re(gain), Re(phase), Re(coherency), Re(spectrum)))
 }
+
+
+
+
+
+
+
+
 
 
 #' coh_phase
@@ -127,4 +158,34 @@ coh_phase <- function(pgram) {
   }
   
   return(cbind(coh, phase))
+}
+
+
+#' spec_welch_tf_error
+#'
+#' @param coh coherency
+#' @param amp amplitude
+#' @param overlap overlap fraction from spec_welch
+#' @param n_subsets number of subsets in spec welch
+#' @param return either 'amp', or 'phase'
+#'
+#' @return
+#' @export
+#'
+#' @examples
+spec_welch_tf_error <- function(coh, amp, overlap = 0.5, n_subsets = 10, return = 'amp') {
+  
+  # Hussein B4, B5, B6
+  df <- n_subsets - ((n_subsets-1) * overlap)               # B6 text
+  
+  coh_error   <- sqrt(0.5 * (1 / df) * (( 1 / (coh)^2)-1))  # B6
+  amp_error   <- coh_error * amp                            # B4
+  phase_error <- coh_error                                  # B5
+  
+  if(return == 'phase') {
+    return(phase_error)
+  } else {
+    return(amp_error)
+  }
+  
 }

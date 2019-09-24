@@ -93,15 +93,15 @@ spec_pgram <-
     # u4 <- (1 - (93/128) * taper * 2)
     
     if (pad > 0) {
-      x <- rbind(x, matrix(0, nrow = N * pad, ncol = ncol(x)))
+      x <- rbind(x, matrix(0, nrow = pad, ncol = ncol(x)))
       N <- nrow(x)
     }
     
     NewN <- if(fast) nextn(N) else N
-    print(nrow(x))
+    #print(nrow(x))
     x <- rbind(x, matrix(0, nrow = (NewN - N), ncol = ncol(x)))
     N <- nrow(x)
-    print(nrow(x))
+    #print(nrow(x))
     
     Nspec <- floor(N/2)
     
