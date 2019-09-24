@@ -39,23 +39,8 @@ transfer_fun <- function(dat, vars, time = 'datetime', method = 'spec_pgram', ..
   if (length(vars) == 1) {
     warning('only one variable provided to transfer_fun, returning the spectral density')
     
-    if (method == 'spec_pgram') {
-      
-      dots <- list(...)
-      if ('taper' %in% names(dots)) {
-        u2 <- (1 - (5/8) * dots[['taper']] * 2)
-      } else {
-        u2 <- (1 - (5/8) * 0.1 * 2)
-      }
-      
-      return(data.table(frequency = Re(frequency), 
-                        phase     = Arg(pgram),
-                        amplitude = Re(pgram) / u2))
-    } else {
-      return(data.table(frequency = Re(frequency), 
-                        phase     = Arg(pgram),
-                        amplitude = Re(pgram)))
-    }
+    return(cbind(data.table(frequency = Re(frequency)),
+                 spec = as.numeric(spec_from_pgram(pgram, method = method, ...))))
     
   }
   
@@ -72,7 +57,7 @@ transfer_fun <- function(dat, vars, time = 'datetime', method = 'spec_pgram', ..
   coherency <- coh_phase(pgram)
   
   # spectrum
-  spectrum <- spec_from_pgram(pgram)
+  spectrum <- spec_from_pgram(pgram, method = method, ...)
   
   tf_name <- c()
   gain_name <- c()

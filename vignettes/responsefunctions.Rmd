@@ -10,6 +10,7 @@ bibliography: staticbe.bib
 link-citations: no
 ---
 
+
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,

@@ -46,8 +46,9 @@ response_from_fit.lm <- function(x){
       next
     }
     
+
     if(all(resp[[i]]$variable == 'V1')){
-      resp[[i]][,  variable :=  tail(strsplit(nm, '_')[[1]], 1)]
+      resp[[i]][,  variable :=  tail(strsplit(nm, '_')[[1]], 2)[1]]
     }
     
   }

@@ -20,15 +20,15 @@ test_that("transfer_fun works", {
                                          method = 'spec_welch', n_subsets = 2))
 
   # test amplitudes for white noise
-  expect_equal(spec, spec_p[2:43201][['amplitude']])
-  expect_equal(mean(spec_w[['amplitude']]), 1.0, tolerance = 0.02, scale = 1.0)
-  expect_equal(mean(spec_p[['amplitude']]), 1.0, tolerance = 0.02, scale = 1.0)
+  expect_equal(spec, spec_p[2:43201][['spec']])
+  expect_equal(mean(spec_w[['spec']]), 1.0, tolerance = 0.02, scale = 1.0)
+  expect_equal(mean(spec_p[['spec']]), 1.0, tolerance = 0.02, scale = 1.0)
   
   expect_warning(spec_p <- transfer_fun(dat, vars = c('y'), time = 'datetime',
                                         method = 'spec_pgram', spans = 3))
   
-  expect_equal(mean(spec_w[['amplitude']]), 
-               mean(spec_p[['amplitude']]), tolerance = 0.01, scale = 1.0)
+  expect_equal(mean(spec_w[['spec']]), 
+               mean(spec_p[['spec']]), tolerance = 0.01, scale = 1.0)
 
   
   tfp <- transfer_fun(dat, vars = c('x', 'y', 'z'), time = 'datetime',

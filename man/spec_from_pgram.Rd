@@ -4,10 +4,12 @@
 \alias{spec_from_pgram}
 \title{spec_from_pgram}
 \usage{
-spec_from_pgram(pgram)
+spec_from_pgram(pgram, method = "spec_pgram", ...)
 }
 \arguments{
 \item{pgram}{the periodogram}
+
+\item{...}{additional arguments}
 }
 \value{
 spectrum from the pgram

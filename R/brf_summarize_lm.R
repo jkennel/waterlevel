@@ -1,14 +1,16 @@
-summarize_lm <- function (fit, ...) {
-  UseMethod("summarize_lm", fit)
-}
-
 #' summarize_lm
 #'
 #' @param fit model fit from lm object
+#' @param ... additional arguments
 #'
 #' @return data.table with fit results
 #' @export 
 #'
+summarize_lm <- function (fit, ...) {
+  UseMethod("summarize_lm", fit)
+}
+
+#' @export 
 summarize_lm.mlm <- function(fit) {
   
   fit_summary <- summary(fit)
@@ -39,6 +41,8 @@ summarize_lm.mlm <- function(fit) {
   out
 }
 
+
+#' @export 
 summarize_lm.lm <- function(fit) {
   
   fit_summary <- summary(fit)
@@ -52,7 +56,7 @@ summarize_lm.lm <- function(fit) {
     sigma         = fit_summary$sigma,
     r_squared     = fit_summary$r.squared,
     adj_r_squared = fit_summary$adj.r.squared,
-    AIC           = stats::AIC(fit),
+    AIC           = stats::AIC(fit)
   )
   tt <- terms(fit)
   out[, `:=` (pivot = .(qr(fit)$pivot))]

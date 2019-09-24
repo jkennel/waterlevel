@@ -172,7 +172,7 @@ bake.step_lag_matrix <- function(object, new_data, ...) {
                                  make_call,
                                  n_subset = object$n_subset,
                                  n_shift = object$n_shift))
-  newname <- paste0(object$prefix, grid$lag_val, "_", grid$col)
+  newname <- paste0(object$prefix, grid$col, "_", grid$lag_val)
   newname <- gsub('-', 'n', newname)
   calls <- check_name(calls, new_data, object, newname, TRUE)
   
