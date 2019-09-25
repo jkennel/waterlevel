@@ -84,6 +84,7 @@ find_level_shift <- function(x,
 #' gap_fill
 #'
 #' @param x data.table of water levels
+#' @param gaps data.table of gaps
 #' @param recipe recipe to apply
 #' @param dep_var the time variable name (character)
 #' @param time_var the time variable name (character)

@@ -16,7 +16,7 @@
 #'
 window_rectangular <- function(n){
   
-  rep(1.0, n)
+  rep(1.0, n) 
   
 }
 

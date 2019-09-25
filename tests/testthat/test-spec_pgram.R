@@ -16,7 +16,8 @@ test_that("spec_pgram works", {
   expect_equal(as.numeric(Re(spec_pgram(x, 
                                         demean = TRUE, 
                                         detrend = TRUE, 
-                                        taper = 0))),
+                                        taper = 0,
+                                        fast = TRUE)))[2:51],
                spec.pgram(x, 
                           demean = TRUE, 
                           detrend = TRUE,
@@ -26,7 +27,7 @@ test_that("spec_pgram works", {
   expect_equal(as.numeric(Re(spec_pgram(x, 
                                         demean = TRUE, 
                                         detrend = FALSE, 
-                                        taper = 0))),
+                                        taper = 0)))[2:51],
                spec.pgram(x, 
                           demean = TRUE, 
                           detrend = FALSE,
@@ -36,12 +37,14 @@ test_that("spec_pgram works", {
   expect_equal(as.numeric(Re(spec_pgram(x, 
                                         demean = TRUE, 
                                         detrend = TRUE, 
-                                        taper = 0, pad = 1)))[seq(2, 100, 2)],
+                                        taper = 0, 
+                                        pad = 100)))[2:101],
                spec.pgram(x, 
                           demean = TRUE, 
                           detrend = TRUE,
                           plot = FALSE,
-                          taper = 0)$spec)
+                          taper = 0,
+                          pad = 1)$spec)
   
   
   x <- rnorm(2^17)
@@ -50,7 +53,7 @@ test_that("spec_pgram works", {
   expect_equal(as.numeric(Re(spec_pgram(x, 
                                         demean = TRUE, 
                                         detrend = TRUE, 
-                                        taper = 0))),
+                                        taper = 0)))[2:(length(x)/2+1)],
                spec.pgram(x, 
                           demean = TRUE, 
                           detrend = TRUE,
@@ -62,7 +65,7 @@ test_that("spec_pgram works", {
                                         demean = TRUE, 
                                         detrend = TRUE, 
                                         taper = 0,
-                                        spans = 3))),
+                                        spans = 3)))[2:(length(x)/2+1)],
                spec.pgram(x, 
                           demean = TRUE, 
                           detrend = TRUE,

@@ -10,7 +10,6 @@
 #'
 #' @return sin and cos curves
 #'
-#'
 #' @export
 #'
 harmonic <- function(times, freq) {

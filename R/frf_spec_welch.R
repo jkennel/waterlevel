@@ -45,8 +45,9 @@ spec_welch <- function (x,
   n_ffts  <- length(sub_s)
   nenbw   <- n * sum(win^2) / sum(win)^2
   
+  #fs <- 3000
   # eq 21 from https://holometer.fnal.gov/GH_FFT.pdf
-  scale   <- mean(win)^2 * nenbw * n_ffts * n
+  scale   <- mean(win)^2 * nenbw * n_ffts * n 
   #scale   <- sum(win^2) * n_ffts * (n/4)
   #scale   <- sum(win)^2 * n_ffts * sqrt(n) * 2.0
 

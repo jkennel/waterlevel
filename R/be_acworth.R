@@ -85,11 +85,13 @@ be_acworth <- function(dat, wl = 'wl', ba = 'ba', et = 'et', method = 'spec_pgra
   
   if(et == 0) {
     spec <- transfer_acworth(dat, vars = c(wl, ba), 
-                             time = 'datetime', ...)
+                             time = 'datetime',
+                             method = method, ...)
   } else {
     
     spec <- transfer_acworth(dat, vars = c(wl, ba, et), 
-                             time = 'datetime', ...)
+                             time = 'datetime',
+                             method = method, ...)
   }
   
   m2 <- spec[which.min(abs(spec$frequency-m2_freq)),]
@@ -112,9 +114,8 @@ transfer_acworth <- function(dat, vars, time = 'datetime',
   
   if (method == 'spec_pgram') {
     
-    
     spec_arr <- spec_pgram(as.matrix(dat[, vars, with = FALSE]), ...)
-    spec     <- matrix(NA_complex_, ncol = length(vars), nrow = nrow(spec_arr))
+    spec     <- spec_from_pgram(spec_arr, method = 'spec_pgram')
     n_padded <- nrow(spec_arr)
     df <- 1 / n_padded
     frequency <- seq.int(from = df, by = df, 
@@ -124,19 +125,19 @@ transfer_acworth <- function(dat, vars, time = 'datetime',
   } else if (method == 'spec_welch') {
     
     spec_arr <- spec_welch(as.matrix(dat[, vars, with = FALSE]), ...)
-    spec <- matrix(NA_complex_, ncol = length(vars), nrow = nrow(spec_arr))
-    n <- 2 * (nrow(spec) - 1)
-    dt <- (n / 86400)
-    frequency <- seq.int(from = 1/n, by = 1/n,
-                         length.out = nrow(spec)) * 86400/t_interval
+    spec     <- spec_from_pgram(spec_arr, method = 'spec_welch')
+    n_padded <- nrow(spec_arr)
+    df       <- 1 / n_padded
+    frequency <- seq.int(from = df, by = df, 
+                         length.out = n_padded) * 86400/t_interval
     
   } else {
     stop(paste(method, 'method not yet implemented'))
   }
   
   
-  for(i in 1:length(vars)) { spec[,i] <- spec_arr[, i, i] }
-  colnames(spec) <- vars
+  # for(i in 1:length(vars)) { spec[,i] <- spec_arr[, i, i] }
+  # colnames(spec) <- vars
   
 
   if(length(vars) == 2) {

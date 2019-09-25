@@ -11,6 +11,8 @@ gap_fill(x, gaps, recipe, dep_var = "wl", time_var = "datetime",
 \arguments{
 \item{x}{data.table of water levels}
 
+\item{gaps}{data.table of gaps}
+
 \item{recipe}{recipe to apply}
 
 \item{dep_var}{the time variable name (character)}

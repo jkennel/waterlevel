@@ -6,7 +6,7 @@ test_that("be_acworth works", {
   require(earthtide)
   
   dt <- 3600
-  ndays <- 1.9322736 * 363*2+1
+  ndays <- 1.9322736 * 363 * 2 + 1
   be <- 0.3
   s <- as.POSIXct('2000-01-01', tz = 'UTC')
   e <- as.POSIXct('2000-01-01', tz = 'UTC') + 86400 * ndays - 1
@@ -15,8 +15,8 @@ test_that("be_acworth works", {
   baro_1 <- sin(seq(0, 2*pi*ndays, length.out = length(x))) * 0.2
   baro_2 <- sin(seq(0, 2*pi*ndays*2, length.out = length(x))) * 0.1
   baro_3 <- sin(seq(0, 2*pi*ndays*1.9322736, length.out = length(x))) * 0.01
-  ba <- baro_1 + baro_2 + baro_3
   
+  ba <- baro_1 + baro_2 + baro_3
   
   dat <- data.table(ba, datetime = x)
   
@@ -31,17 +31,16 @@ test_that("be_acworth works", {
   
   be_test <- be_acworth(dat, wl = 'wl', ba = 'ba', et = 'et', 
                         method = 'spec_pgram',
-                        spans = c(3, 3, 3, 3, 3), inverse = TRUE)
-  
-  
-  expect_equal(be_test, be, tolerance = 1e-2)
+                        spans = 3, inverse = TRUE)
+
+  expect_equal(be_test, be, tolerance = 1e-2, scale = 1.0)
   
   be_test <- be_acworth(dat, wl = 'wl', ba = 'ba', et = 'et', 
-                        method = 'spec_welch', window = window_hann,
-                        n_subsets = 20, inverse = TRUE)
+                        method = 'spec_welch', window = window_rectangular,
+                        n_subsets = 10, inverse = TRUE)
   
   
-  expect_equal(be_test, be, tolerance = 1e-2)
+  expect_equal(be_test, be, tolerance = 1e-2, scale = 1.0)
   
   
   # check inverse
@@ -49,16 +48,16 @@ test_that("be_acworth works", {
   
   be_test <- be_acworth(dat, wl = 'wl', ba = 'ba', et = 'et', 
                         method = 'spec_pgram',
-                        spans = c(3, 3, 3, 3, 3, 3), inverse = FALSE)
+                        spans = 3, inverse = FALSE)
   
   
-  expect_equal(be_test, be, tolerance = 1e-2)
+  expect_equal(be_test, be, tolerance = 1e-2, scale = 1.0)
   
   be_test <- be_acworth(dat, wl = 'wl', ba = 'ba', et = 'et', 
                         method = 'spec_welch', window = window_hann,
-                        n_subsets = 50, inverse = TRUE)
+                        n_subsets = 10, inverse = FALSE)
   
-  expect_equal(be_test, be, tolerance = 1e-2)
+  expect_equal(be_test, be, tolerance = 1e-2, scale = 1.0)
   
   
   expect_error(be_acworth(dat, wl = 'wl', ba = 'ba', et = 'et', 

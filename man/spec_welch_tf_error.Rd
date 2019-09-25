@@ -18,6 +18,9 @@ spec_welch_tf_error(coh, amp, overlap = 0.5, n_subsets = 10,
 
 \item{return}{either 'amp', or 'phase'}
 }
+\value{
+error
+}
 \description{
 spec_welch_tf_error
 }

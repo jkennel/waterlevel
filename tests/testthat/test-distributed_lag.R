@@ -53,7 +53,7 @@ test_that("distributed_lag works", {
     regexp = 'The maximum knot cannot be larger than the number of elements in x')
   
   expect_equal(colnames(distributed_lag(1:100, knots = c(1,10), lag_name = 'baro')), 
-                     c('distributed_lag_1_baro', 'distributed_lag_10_baro'))
+                     c('distributed_lag_baro_1', 'distributed_lag_baro_10'))
   
   expect_equal(sum(is.na(distributed_lag(c(NA, 1:50, NA, 1:50), knots = c(1,10)))),
                40L)

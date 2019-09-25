@@ -154,10 +154,10 @@ coh_phase <- function(pgram) {
 #' @param n_subsets number of subsets in spec welch
 #' @param return either 'amp', or 'phase'
 #'
-#' @return
+#' @return error
+#' 
 #' @export
 #'
-#' @examples
 spec_welch_tf_error <- function(coh, amp, overlap = 0.5, n_subsets = 10, return = 'amp') {
   
   # Hussein B4, B5, B6

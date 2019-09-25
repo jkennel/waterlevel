@@ -17,7 +17,6 @@ using namespace Rcpp;
 //'
 //' @return sin and cos curves
 //'
-//'
 //' @export
 //'
 // [[Rcpp::export]]

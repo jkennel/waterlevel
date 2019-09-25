@@ -1,8 +1,10 @@
 test_that("gap_fill works", {
   
-  library(waterlevel)
+  #library(waterlevel)
   library(data.table)
-
+  library(tibble)
+  library(recipes)
+  
   data(transducer)
 
   transducer[21000:21500, wl := NA_real_]
@@ -34,12 +36,14 @@ test_that("gap_fill works", {
     #step_dummy(level_shift, role = 'level_shift') %>%
     step_zv(has_role(match = "level_shift"))
   
-  g <- gap_fill(transducer, rec, time_interval = 120, 
+  g <- gap_fill(transducer, tmp, rec, time_interval = 120, 
                 buffer_start = 86400 * 6, buffer_end = 86400 * 4)
   
-  # gap_fill2(tmp, g)
-  
-  expect_equal(tail(g$level_shift, 1), 0.01, tolerance = 0.0001)
+  #gap_fill2(tmp, g)
+  a <- tail(g, 1)$coefs[[1]]
+
+  expect_equal(diff(a[grep('level_shift', name)][['Estimate']]),
+               0.01, tolerance = 0.0001, scale = 1.0)
   
   # s <- get_intercept_stats(g)
   # 

@@ -78,7 +78,7 @@ test_that("negative lag",  {
   baked_lag$lag_1_t <- rev(baked_lag$lag_1_t)
   expect_equal(ncol(baked_lag_matrix), 3)
   expect_equal(baked_lag$lag_1_t, 
-               baked_lag_matrix$lag_matrix_n1_t)
+               baked_lag_matrix$lag_matrix_t_n1)
   
   
 })
