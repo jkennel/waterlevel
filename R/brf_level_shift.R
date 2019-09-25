@@ -94,6 +94,7 @@ find_level_shift <- function(x,
 #' @param max_interp largest gap to interpolate
 #'
 #' @return data.table of predictions
+#' 
 #' @export
 #'
 gap_fill <- function(x, 
@@ -153,7 +154,7 @@ get_fit_summary <- function(x, recipe, start, end) {
     prep(training = y) %>%
     portion()
   
-  form <- formula_from_recipe(recipe = rec)
+  form <- formula_from_recipe(recipe = recipe)
   fit <- lm(form, 
             dat,  
             x = FALSE, y = FALSE, tol = 1e-50)

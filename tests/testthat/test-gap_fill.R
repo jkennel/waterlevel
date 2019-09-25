@@ -21,6 +21,7 @@ test_that("gap_fill works", {
 
   ba_lags <- log_lags(12, 86400*2/120)
   et_lags <- seq(-3600, 21600, 1200) / 120
+  
   rec <- recipe(wl~., transducer) %>%
     step_distributed_lag(baro, knots = ba_lags) %>%
     step_lag_earthtide(datetime,
@@ -39,12 +40,12 @@ test_that("gap_fill works", {
   g <- gap_fill(transducer, tmp, rec, time_interval = 120, 
                 buffer_start = 86400 * 6, buffer_end = 86400 * 4)
   
-  #gap_fill2(tmp, g)
   a <- tail(g, 1)$coefs[[1]]
 
   expect_equal(diff(a[grep('level_shift', name)][['Estimate']]),
                0.01, tolerance = 0.0001, scale = 1.0)
   
+  #gap_fill2(tmp, g)
   # s <- get_intercept_stats(g)
   # 
   # expect_equal(tail(s$min, 1), 0.01, tolerance = 0.0001)
