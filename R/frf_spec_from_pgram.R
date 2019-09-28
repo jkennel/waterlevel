@@ -1,6 +1,7 @@
 #' spec_from_pgram
 #'
 #' @param pgram the periodogram
+#' @param method either spec_pgram or spec_welch
 #' @param ... additional arguments
 #'
 #' @return spectrum from the pgram

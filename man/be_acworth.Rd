@@ -16,6 +16,8 @@ be_acworth(dat, wl = "wl", ba = "ba", et = "et",
 
 \item{et}{name of the Earth tide column (character).}
 
+\item{method}{either spec_pgram or spec_welch}
+
 \item{inverse}{\code{logical} whether the barometric relationship is inverse
 (TRUE means that when the barometric pressure goes up the measured water
 level goes down (vented transducer, depth to water), FALSE means that when 

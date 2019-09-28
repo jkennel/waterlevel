@@ -9,6 +9,8 @@ spec_from_pgram(pgram, method = "spec_pgram", ...)
 \arguments{
 \item{pgram}{the periodogram}
 
+\item{method}{either spec_pgram or spec_welch}
+
 \item{...}{additional arguments}
 }
 \value{

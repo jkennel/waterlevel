@@ -14,8 +14,6 @@ fftw_convolve(x, y, normalize = TRUE, align = "center")
 \item{normalize}{\code{logical} do you want the values normalized}
 
 \item{align}{\code{character} what alignment for the convolution}
-
-\item{dist_lag}{\code{logical} is this for a distributed lag?}
 }
 \value{
 convolution of data series and filter

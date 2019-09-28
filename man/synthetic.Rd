@@ -20,6 +20,8 @@ trend (numeric)}
 
 \item{seed}{random number seed for reproducibility (numeric)}
 
+\item{scale}{multiplier for barometric pressure (numeric)}
+
 \item{baro_kernel}{vector values to convolve with barometric pressure}
 }
 \value{

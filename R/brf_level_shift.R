@@ -483,7 +483,6 @@ find_gaps <- function(x,
 #' fit_gaps
 #'
 #' @param x the data set (data.table)
-#' @param y subset data.table with (start and end)
 #' @param recipe the recipe to apply
 #' @param time_var the time variable name (character)
 #'
@@ -504,7 +503,7 @@ fit_gaps <- function(x, recipe, time_var = 'datetime') {
   
   out <- summarize_lm(fit)
   #print(out)
-  out[, `:=` (recipe      = .(recipe))]
+  out[, `:=` (recipe      = list(recipe))]
   out[, `:=` (start_train = min(x$datetime))]
   out[, `:=` (end_train   = max(x$datetime))]
   out
@@ -516,6 +515,7 @@ fit_gaps <- function(x, recipe, time_var = 'datetime') {
 #'
 #' @param x the data set (data.table)
 #' @param fits data.table of fits
+#' @param term_labels names of the group (character)
 #'
 #' @return data.table of predictions
 #' @export

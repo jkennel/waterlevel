@@ -12,8 +12,6 @@ fit_gaps(x, recipe, time_var = "datetime")
 \item{recipe}{the recipe to apply}
 
 \item{time_var}{the time variable name (character)}
-
-\item{y}{subset data.table with (start and end)}
 }
 \value{
 data.table of fit results

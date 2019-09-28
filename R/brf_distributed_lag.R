@@ -125,7 +125,6 @@ cross_basis_fft <- function(basisvar, basislag)
 #' @param y \code{numeric} matrix of filter(s)
 #' @param normalize \code{logical} do you want the values normalized
 #' @param align \code{character} what alignment for the convolution
-#' @param dist_lag \code{logical} is this for a distributed lag?
 #'
 #' @return convolution of data series and filter
 #'

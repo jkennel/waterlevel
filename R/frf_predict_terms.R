@@ -35,23 +35,24 @@ frf_predict_terms <- function(frf,
     coh_name[i] <- paste0('coherency_', vars[1], '_', vars[i+1])  
   }
   
-  
-  
   freqs  <- seq(1 / n_days, 1 / (2 * n_cycles), length.out = n)
   
   res <- list()
   
   for (i in seq_along(gain_name)) {
-    
+    rule = c(1,1)
     phase <- approx(x = (frf[["frequency"]]), 
                     y = frf[[phase_name[i]]], 
-                    xout = (freqs))[['y']]
+                    xout = (freqs),
+                    rule = rule)[['y']]
     gain  <- approx(x = (frf[["frequency"]]),
                     y = frf[[gain_name[i]]], 
-                    xout = (freqs))[['y']]
+                    xout = (freqs),
+                    rule = rule)[['y']]
     coh  <- approx(x = (frf[["frequency"]]),
                    y = frf[[coh_name[i]]], 
-                   xout = (freqs))[['y']]
+                   xout = (freqs),
+                   rule = rule)[['y']]
     
     gain_cut <- gain[which.min(abs(1.9322736-freqs))] * 2
     
@@ -84,7 +85,21 @@ frf_predict_terms <- function(frf,
                      tf_interp, Conj(rev(tf_interp)[-1]))
     }
     
-    res[[i]] <- Re(IFFT(tf_interp * FFT(x[[vars[[i+1]]]])))
+    
+    fft_tmp <- FFT(x[[vars[[i+1]]]])
+    # fft_tmp[1] <- 0 + 0i
+    # tf_interp[1] <- 0 + 0i
+    # if(length(fft_tmp) %% 2 == 0) {
+    #   fft_tmp[n+1] <- 0 + 0i
+    #   tf_interp[n+1] <- 0 + 0i
+    # }
+    # pad <- rep(0+0i, nrow(x)*2)
+    # tf_interp <- c(pad, tf_interp, pad)
+    # fft_tmp <- c(pad, fft_tmp, pad)
+    
+    res[[i]] <- Re(IFFT(tf_interp * fft_tmp, scale = TRUE))#[seq(1, length(fft_tmp), 5)] / (nrow(x))
+    #res[[i]] <- Re(IFFT(tf_interp * fft_tmp, scale = TRUE))#[seq(1, length(fft_tmp), 5)] / (nrow(x))
+    
   }
   
   names(res) <- vars[-1]

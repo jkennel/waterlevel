@@ -65,6 +65,7 @@ be_acworth_eq_4 <- function(s2_gw,
 #' @param wl name of the water level column (character).
 #' @param ba name of the barometric pressure column (character). 
 #' @param et name of the Earth tide column (character). 
+#' @param method either spec_pgram or spec_welch
 #' @param inverse \code{logical} whether the barometric relationship is inverse
 #' (TRUE means that when the barometric pressure goes up the measured water
 #' level goes down (vented transducer, depth to water), FALSE means that when 
@@ -78,7 +79,8 @@ be_acworth_eq_4 <- function(s2_gw,
 #' @return barometric efficiency
 #' @export
 #'
-be_acworth <- function(dat, wl = 'wl', ba = 'ba', et = 'et', method = 'spec_pgram', inverse = TRUE, ...) {
+be_acworth <- function(dat, wl = 'wl', ba = 'ba', et = 'et',
+                       method = 'spec_pgram', inverse = TRUE, ...) {
   
   m2_freq <- 1.9322736
   s2_freq <- 2.0000000

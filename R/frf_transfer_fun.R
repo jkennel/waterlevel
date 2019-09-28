@@ -21,16 +21,18 @@ transfer_fun <- function(dat, vars, time = 'datetime', method = 'spec_pgram', ..
     df       <- 1 / n_padded
     # frequency <- seq.int(from = df, by = df, 
     #                      length.out = floor(n_padded/2)) * 86400/t_interval
-    frequency <- seq.int(from = df, by = df, 
+    frequency <- seq.int(from = 0, by = df, 
                          length.out = n_padded) * 86400/t_interval
     
   } else if (method == 'spec_welch') {
     
     pgram <- spec_welch(as.matrix(dat[, vars, with = FALSE]), ...)
-    n <- (nrow(pgram) - 1)
-    dt <- (n / 86400)
-    frequency <- seq.int(from = 1/n, by = 1/n, 
-                         length.out = nrow(pgram)) * 86400/t_interval
+    n_padded <- nrow(pgram)
+    df       <- 1 / n_padded
+    # frequency <- seq.int(from = df, by = df, 
+    #                      length.out = floor(n_padded/2)) * 86400/t_interval
+    frequency <- seq.int(from = 0, by = df, 
+                         length.out = n_padded) * 86400/t_interval
     
   } else {
     stop(paste(method, 'method not yet implemented'))

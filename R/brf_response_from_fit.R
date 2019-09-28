@@ -1,12 +1,13 @@
 #' response_from_fit
 #'
-#' @param fit model fit object, commonly lm
+#' @param x model fit object, commonly lm
+#' @param ... additional arguments
 #'
 #' @return tibble of model fit
 #' 
 #' @importFrom utils tail
 #' @importFrom data.table as.data.table data.table
-#' @importFrom stats coef
+#' @importFrom stats coef as.formula predict 
 #' @importFrom earthtide get_main_frequency
 #' 
 #' @export

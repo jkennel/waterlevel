@@ -8,18 +8,19 @@ synthetic_wl(baro, datetime, sd_noise = 0, linear_trend = 0,
   intercept = 0, seed = NULL, kernel = NULL)
 }
 \arguments{
+\item{baro}{barometric pressure (numeric vector)}
+
+\item{datetime}{POSIXct dates}
+
 \item{sd_noise}{standard deviation of random noise to add (numeric)}
 
 \item{linear_trend}{magnitude of linear trend in time (numeric)}
 
+\item{intercept}{}
+
 \item{seed}{random number seed for reproducibility (numeric)}
 
-\item{sd_noise_trend}{standard deviation of noise to add to generate a 
-trend (numeric)}
-
-\item{n}{length of time series in seconds (integer)}
-
-\item{baro_kernel}{vector values to convolve with barometric pressure}
+\item{kernel}{}
 }
 \value{
 data.table of synthetic water levels and barometric pressure

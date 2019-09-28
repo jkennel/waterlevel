@@ -1,5 +1,9 @@
 test_that("transfer_fun works", {
   
+  
+  
+  
+  
   library(data.table)
   set.seed(42)
   n <- 86400
@@ -7,13 +11,22 @@ test_that("transfer_fun works", {
   y <- rnorm(n) # sd = 1
   z <- rnorm(n) # sd = 1
   x <- y * 0.2 + z * 0.7
+  yy <- harmonic(datetime, freq = c(10))
   
-  dat <- data.table(x, y, z, datetime)
+  dat <- data.table(x, y, yy = yy[,1], z, datetime)
+  
+  # recover maximum frequency
+  expect_warning(spec_p <- transfer_fun(dat, vars = c('yy'), time = 'datetime',
+                      method = 'spec_pgram', spans = 3, taper = 0.2))
+  expect_warning(spec_w <- transfer_fun(dat, vars = c('yy'), time = 'datetime',
+                                        method = 'spec_welch', n_subsets = 2))
+  expect_equal(spec_p[which.max(spec)][['frequency']], 10, tolerance = 0.01, scale = 1.0)
+  expect_equal(spec_w[which.max(spec)][['frequency']], 10, tolerance = 0.01, scale = 1.0)
   
   
   # test single value entry
   expect_warning(spec_p <- transfer_fun(dat, vars = c('y'), time = 'datetime',
-                      method = 'spec_pgram', spans = 3, taper = 0.2))
+                                        method = 'spec_pgram', spans = 3, taper = 0.2))
   spec <- spectrum(dat$y, spans = 3, taper = 0.2, plot = FALSE)[['spec']]
 
   expect_warning(spec_w <- transfer_fun(dat, vars = c('y'), time = 'datetime',

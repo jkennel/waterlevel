@@ -7,7 +7,9 @@
 response_from_fit(x, ...)
 }
 \arguments{
-\item{fit}{model fit object, commonly lm}
+\item{x}{model fit object, commonly lm}
+
+\item{...}{additional arguments}
 }
 \value{
 tibble of model fit

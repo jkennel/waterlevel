@@ -35,7 +35,7 @@
 #'
 #' @seealso [step_lag_earthtide()] [recipe()]
 #'   [prep.recipe()] [bake.recipe()]
-#' @importFrom recipes add_step step terms_select ellipse_check rand_id
+#' @importFrom recipes add_step step terms_select ellipse_check rand_id recipe %>%
 step_lag_earthtide <-
   function(recipe,
            ...,

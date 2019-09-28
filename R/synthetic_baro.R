@@ -8,6 +8,7 @@
 #' @param linear_trend magnitude of linear trend in time (numeric)
 #' @param n length of time series in seconds (integer)
 #' @param seed random number seed for reproducibility (numeric)
+#' @param scale multiplier for barometric pressure (numeric)
 #' @param baro_kernel vector values to convolve with barometric pressure
 #'
 #' @return data.table of synthetic water levels and barometric pressure
@@ -62,13 +63,13 @@ synthetic <- function(sd_noise = 0.0002,
 #'
 #' This function is used for testing purposes
 #'
+#' @param baro barometric pressure (numeric vector)
+#' @param datetime POSIXct dates
 #' @param sd_noise standard deviation of random noise to add (numeric)
-#' @param sd_noise_trend standard deviation of noise to add to generate a 
-#' trend (numeric)
 #' @param linear_trend magnitude of linear trend in time (numeric)
-#' @param n length of time series in seconds (integer)
+#' @param intercept 
+#' @param kernel 
 #' @param seed random number seed for reproducibility (numeric)
-#' @param baro_kernel vector values to convolve with barometric pressure
 #'
 #' @return data.table of synthetic water levels and barometric pressure
 #' 
