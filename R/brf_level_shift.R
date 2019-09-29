@@ -122,15 +122,17 @@ gap_fill <- function(x,
     return(NULL)
   }
   
-  gaps[, start := start - (buffer_start)]
-  gaps[, end   := end + (buffer_end)]
+  gaps[, start_reg := start - (buffer_start)]
+  gaps[, end_reg   := end + (buffer_end)]
   
   x <- copy(x)
   
-  gaps[, get_fit_summary(x, recipe, start, end),
-       by = list(midpoint = as.POSIXct(midpoint, tz = 'UTC'))]
+  gaps <- gaps[, get_fit_summary(x, recipe, start_reg, end_reg),
+       by = list(midpoint = as.POSIXct(midpoint, tz = 'UTC'),
+                 start_gap = as.POSIXct(start, tz = 'UTC'), 
+                 end_gap = as.POSIXct(end, tz = 'UTC'))]
   
-  
+  gaps  
 }
 
 
@@ -161,8 +163,8 @@ get_fit_summary <- function(x, recipe, start, end) {
   
   out <- summarize_lm(fit)
   out[, `:=` (rank = fit$rank)]
-  out[, start := start]
-  out[, end := end]
+  out[, start_reg := start]
+  out[, end_reg := end]
   out[, `:=` (recipe = list(recipe))]
   out[, `:=` (coef = list(summarize_coef(fit)))]
   out[, `:=` (formula = list(form))]
@@ -188,8 +190,6 @@ pree <- function(x, fit_dt) {
   })
   
   terms <- names(dat)
-  
-  
   
 }
 
@@ -276,6 +276,50 @@ get_shift <- function(x, recipe, start, end) {
 }
 
 
+# x is the result of gap_fill
+#' get_level_shift_coef
+#'
+#' @param x data.table of level shifts from regression
+#'
+#' @return data.table of shifts
+#' @export
+#'
+get_level_shift_coef <- function(x) {
+  
+  co <- x[, coef[[1]], by = list(start_reg, end_reg, start_gap, end_gap, midpoint)]
+  co <- co[grep('level_shift', name)]
+  setnames(co, 'co', 'level_shift')
+  
+  # there shouldn't be any NA values but remove them if there are
+  co <- co[!is.na(level_shift)]
+  
+  co 
+  
+}
+
+
+# x is the result of gap_fill
+#' level_shift_to_datetime
+#'
+#' @param x character string that includes the date
+#'
+#' @return datetime
+#' @export
+#'
+level_shift_to_datetime <- function(x) {
+  
+  tmp <- 'level_shiftlevel_shift_X2016.09.15.12.38.00'
+  # Remove non-numeric
+  x <- gsub("[^0-9.-]", "", x)
+  datetime <- paste(scan(text = x, sep = '.'), collapse = ' ')
+  
+  as.POSIXct(datetime, 
+             format = '%Y %m %d %H %M %S', 
+             origin = '1970-01-01',
+             tz = 'UTC')
+  
+}
+
 
 #' get_intercept_stats
 #'
@@ -286,33 +330,53 @@ get_shift <- function(x, recipe, start, end) {
 #'
 get_intercept_stats <- function(x) {
   
+  # get level_shift from regression
+  x <- get_level_shift_coef(x)
+  
+  # the name is for grouping coefficients
   x <- x[, list(shifts = unique(level_shift),
-                 min_datetime = min(datetime),
-                 max_datetime = max(datetime)), 
+                name), 
           by = list(midpoint)]
   
+  
   x[, shift_diff := c(0.0, diff(shifts)), by = midpoint]
-  mids <- unique(x[, list(shift_datetime = midpoint, end_toss = midpoint)])
-  rngs <- unique(x[, list(start = min_datetime, end = max_datetime, midpoint)])
-  setkey(mids, shift_datetime, end_toss)
-  setkey(rngs, start, end)
   
-  grps <- foverlaps(rngs, mids)[, list(start, end, shift_datetime, midpoint, type = 'reg')]
-  grps <- grps[, rbind(data.table(shift_datetime = start[1], midpoint = midpoint[1], type = 'non-reg'), .SD),
-               by = list(start, end)]
-  grps <- grps[, list(shift_datetime, midpoint, type)]
-  
-  x <- cbind(x, shift_datetime = grps$shift_datetime)
+  # 
+  # mids <- unique(x[, list(shift_datetime = midpoint, 
+  #                         end_toss = midpoint)])
+  # 
+  # rngs <- unique(x[, list(start = min_datetime,
+  #                         end = max_datetime, 
+  #                         midpoint)])
+  # 
+  # 
+  # setkey(mids, shift_datetime, end_toss)
+  # setkey(rngs, start, end)
+  # grps <- foverlaps(rngs, mids)[, list(start, end, shift_datetime, midpoint, type = 'reg')]
+  # 
+  # grps <- grps[, rbind(data.table(shift_datetime = start[1], midpoint = midpoint[1], type = 'non-reg'), .SD),
+  #              by = list(start, end)]
+  # 
+  # grps <- grps[, list(shift_datetime, midpoint, type)]
+  # 
+  # x <- cbind(x, shift_datetime = grps$shift_datetime)
   
   #return(x[midpoint == shift_datetime])
   
-  x <- x[, list(min = min(shift_diff),
-            max = max(shift_diff),
-            mean = mean(shift_diff),
-            n = .N),
-     by = shift_datetime]
+  # the first value should always be 0 and can be removed
+  x <- x[, .SD[-1], midpoint]
+
+  x <- x[, list(min  = min(shift_diff),
+                max  = max(shift_diff),
+                mean = mean(shift_diff),
+                med  = median(shift_diff),
+                sd   = sd(shift_diff),
+                n = .N,
+                shift_datetime = level_shift_to_datetime(name)),
+     by = list(name)]
   
   x <- x[!(min == 0.0 & max == 0)]
+  
   return(x)
 }
 

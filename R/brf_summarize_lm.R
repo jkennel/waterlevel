@@ -38,7 +38,9 @@ summarize_lm.mlm <- function(fit) {
   out[, `:=` (has_intercept =  attr(tt, "intercept") > 0L)]
   out[, `:=` (term_labels =  list(attr(tt, "term.labels")))]
   out[, `:=` (coefs = lapply(fit_summary, summarize_coef)) ]
+  
   out
+  
 }
 
 
@@ -49,7 +51,7 @@ summarize_lm.lm <- function(fit) {
   
   out <- data.table(
     variable      = dimnames(fit$model$outcome)[[2]],
-    form          = format(formula(fit)),
+    form          = Reduce(paste, deparse(formula(fit), width.cutoff = 500)),
     n_obs         = stats::nobs(fit),
     n_coef        = fit_summary$df[3],
     df            = fit_summary$df[2],
@@ -58,12 +60,15 @@ summarize_lm.lm <- function(fit) {
     adj_r_squared = fit_summary$adj.r.squared,
     AIC           = stats::AIC(fit)
   )
+  
   tt <- terms(fit)
   out[, `:=` (pivot = .(qr(fit)$pivot))]
   out[, `:=` (has_intercept =  attr(tt, "intercept") > 0L)]
   out[, `:=` (term_labels =  list(attr(tt, "term.labels")))]
   out[, `:=` (coefs = list(summarize_coef(fit_summary))) ]
+  
   out
+  
 }
 
 

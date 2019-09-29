@@ -10,6 +10,8 @@ predict_gaps(x, fits, term_labels = NULL)
 \item{x}{the data set (data.table)}
 
 \item{fits}{data.table of fits}
+
+\item{term_labels}{names of the group (character)}
 }
 \value{
 data.table of predictions
