@@ -123,7 +123,7 @@ gap_fill <- function(x,
   }
   
   gaps[, start := start - (buffer_start)]
-  gaps[, end := end + (buffer_end)]
+  gaps[, end   := end + (buffer_end)]
   
   x <- copy(x)
   
@@ -290,13 +290,16 @@ get_intercept_stats <- function(x) {
                  min_datetime = min(datetime),
                  max_datetime = max(datetime)), 
           by = list(midpoint)]
+  
   x[, shift_diff := c(0.0, diff(shifts)), by = midpoint]
   mids <- unique(x[, list(shift_datetime = midpoint, end_toss = midpoint)])
   rngs <- unique(x[, list(start = min_datetime, end = max_datetime, midpoint)])
   setkey(mids, shift_datetime, end_toss)
   setkey(rngs, start, end)
+  
   grps <- foverlaps(rngs, mids)[, list(start, end, shift_datetime, midpoint, type = 'reg')]
-  grps <- grps[, rbind(data.table(shift_datetime = start[1], midpoint = midpoint[1], type = 'non-reg'), .SD), by = list(start, end)]
+  grps <- grps[, rbind(data.table(shift_datetime = start[1], midpoint = midpoint[1], type = 'non-reg'), .SD),
+               by = list(start, end)]
   grps <- grps[, list(shift_datetime, midpoint, type)]
   
   x <- cbind(x, shift_datetime = grps$shift_datetime)
