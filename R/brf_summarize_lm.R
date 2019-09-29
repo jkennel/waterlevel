@@ -79,14 +79,14 @@ summarize_coef <- function(fit) {
   
   co <- fit$coefficients
   
-  if(ncol(co) > 1) {
+  if(is.vector(co)) {
     co <- data.table(
-      name = rownames(fit$coefficients),
+      name = names(co),
       co
     )
   } else {
     co <- data.table(
-      name = names(co),
+      name = rownames(fit$coefficients),
       co
     )
   }
