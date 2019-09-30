@@ -142,12 +142,12 @@ gap_fill <- function(x,
   
   gaps[, `:=` (predict_adj =
                  list(data.table(datetime = predict_adj[[1]][['datetime']],
-                                 adj = stretch_interp(start_val[1], 
-                                                      end_val[1], 
-                                                      predict_adj[[1]][['predict_adj']])))), 
+                                 adj = stretch_interp(start_val[1],
+                                                      end_val[1],
+                                                      predict_adj[[1]][['predict_adj']])))),
        by = midpoint]
-  
-  
+
+
   
 }
 

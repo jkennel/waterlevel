@@ -94,13 +94,13 @@ test_that("gap_fill works", {
     #step_dummy(level_shift, role = 'level_shift') %>%
     step_zv(has_role(match = "level_shift"))
   
-  dat <- recipe %>%
-    prep(training = transducer) %>%
-    portion()
-  
-  dat[!is.na(dat$outcome),]
-  dat[is.na(dat$outcome),]
-  
+  # dat <- recipe %>%
+  #   prep(training = transducer) %>%
+  #   portion()
+  # 
+  # dat[!is.na(dat$outcome),]
+  # dat[is.na(dat$outcome),]
+  # 
   # 
   # form <- formula_from_recipe(recipe = recipe)
   # 
