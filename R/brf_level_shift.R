@@ -179,13 +179,14 @@ get_fit_summary <- function(x, recipe, start_reg, end_reg, start_gap, end_gap) {
   
   form <- formula_from_recipe(recipe = recipe)
   fit <- lm(form, 
-            dat,  
+            dat[!is.na(as.vector(dat$outcome)),],  
             x = FALSE, y = FALSE, tol = 1e-50)
   
   # get predictions without level shift
-  pt  <- data.table(level_shift = as.numeric(predict(fit, dat, type = 'terms', terms = 'level_shift')),
-                    datetime = as.POSIXct(as.numeric(dat[['datetime']]), origin = '1970-01-01', tz = 'UTC'))
-  pt[, predict := predict(fit, dat)]
+  dat_sub <- dat[is.na(as.vector(dat$outcome)),]
+  pt  <- data.table(level_shift = as.numeric(predict(fit, dat_sub, type = 'terms', terms = 'level_shift')),
+                    datetime = as.POSIXct(as.numeric(dat_sub[['datetime']]), origin = '1970-01-01', tz = 'UTC'))
+  pt[, predict := predict(fit, dat_sub)]
   pt[, level_shift := level_shift - level_shift[1]]
   pt[, predict_adj := predict - level_shift]
   pt <- pt[datetime %between% c(start_gap, end_gap)]
