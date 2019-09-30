@@ -40,7 +40,6 @@ summarize_lm.mlm <- function(fit) {
   out[, `:=` (coefs = lapply(fit_summary, summarize_coef)) ]
   
   out
-  
 }
 
 

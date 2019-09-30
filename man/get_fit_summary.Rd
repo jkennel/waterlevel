@@ -4,16 +4,20 @@
 \alias{get_fit_summary}
 \title{get_fit_summary}
 \usage{
-get_fit_summary(x, recipe, start, end)
+get_fit_summary(x, recipe, start_reg, end_reg, start_gap, end_gap)
 }
 \arguments{
 \item{x}{data.table of water levels}
 
 \item{recipe}{recipe to apply}
 
-\item{start}{start subset time}
+\item{start_reg}{start subset time}
 
-\item{end}{end subset tiem}
+\item{end_reg}{end subset time}
+
+\item{start_gap}{start subset time}
+
+\item{end_gap}{end subset time}
 }
 \value{
 data.table summary

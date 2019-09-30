@@ -127,30 +127,36 @@ gap_fill <- function(x,
   
   x <- copy(x)
   
-  gaps <- gaps[, get_fit_summary(x, recipe, start_reg, end_reg),
+  gaps <- gaps[, get_fit_summary(x, recipe, start_reg, end_reg, start, end),
        by = list(midpoint = as.POSIXct(midpoint, tz = 'UTC'),
                  start_gap = as.POSIXct(start, tz = 'UTC'), 
                  end_gap = as.POSIXct(end, tz = 'UTC'))]
   
+  
   gaps  
 }
+
+
+
 
 
 #' get_fit_summary
 #'
 #' @param x data.table of water levels
 #' @param recipe recipe to apply
-#' @param start start subset time
-#' @param end end subset tiem
+#' @param start_reg start subset time
+#' @param end_reg end subset time
+#' @param start_gap start subset time
+#' @param end_gap end subset time
 #'
 #' @return data.table summary
 #' @export
 #'
 #'
 #'
-get_fit_summary <- function(x, recipe, start, end) {
+get_fit_summary <- function(x, recipe, start_reg, end_reg, start_gap, end_gap) {
   
-  y <- x[datetime %between% c(start, end)]
+  y   <- x[datetime %between% c(start_reg, end_reg)]
   
   dat <- recipe %>%
     prep(training = y) %>%
@@ -161,19 +167,33 @@ get_fit_summary <- function(x, recipe, start, end) {
             dat,  
             x = FALSE, y = FALSE, tol = 1e-50)
   
+  # get predictions without level shift
+  pt  <- data.table(level_shift = as.numeric(predict(fit, dat, type = 'terms', terms = 'level_shift')),
+                    datetime = as.POSIXct(as.numeric(dat[['datetime']]), origin = '1970-01-01', tz = 'UTC'))
+  pt[, predict := predict(fit, dat)]
+  pt[, level_shift := level_shift - level_shift[1]]
+  pt[, predict_adj := predict - level_shift]
+  pt <- pt[datetime %between% c(start_gap, end_gap)]
+  pt[, level_shift := NULL]
+  pt[, predict := NULL]
+  
   out <- summarize_lm(fit)
-  out[, `:=` (rank = fit$rank)]
-  out[, start_reg := start]
-  out[, end_reg := end]
+  #out[, `:=` (rank = fit$rank)]
+  out[, start_reg := start_reg]
+  out[, end_reg := end_reg]
   out[, `:=` (recipe = list(recipe))]
-  out[, `:=` (coef = list(summarize_coef(fit)))]
+  #out[, `:=` (coef = list(summarize_coef(fit)))]
   out[, `:=` (formula = list(form))]
   out[, `:=` (terms = list(terms))]
   out[, `:=` (pivot = list(qr(fit)$pivot))]
+  out[, `:=` (predict_adj = list(pt))]
   
   out
   
 }
+
+
+
 
 pree <- function(x, fit_dt) {
   
@@ -236,7 +256,9 @@ gap_fill2 <- function(x, y) {
   
   x <- x[y, on = 'midpoint']
   
-  x[, list(interp = stretch_interp(start_val[1], end_val[1], predict_adj[datetime %between% c(start[1], end[1])]),
+  x[, list(interp = stretch_interp(start_val[1], 
+                                   end_val[1], 
+                                   predict_adj[datetime %between% c(start[1], end[1])]),
            datetime = datetime[datetime %between% c(start[1], end[1])]), 
        by = list(midpoint)]
 
@@ -248,7 +270,7 @@ gap_fill2 <- function(x, y) {
 #' @param x data.table of water levels
 #' @param recipe recipe to apply
 #' @param start start subset time
-#' @param end end subset tiem
+#' @param end end subset time
 #'
 #' @return data.table of predictions
 #' @export
@@ -273,6 +295,7 @@ get_shift <- function(x, recipe, start, end) {
   pt[, datetime := as.POSIXct(dat$datetime, origin = '1970-01-01', tz = 'UTC')]
   pt[, predict_adj := predict - level_shift]
   pt
+  
 }
 
 
@@ -286,9 +309,9 @@ get_shift <- function(x, recipe, start, end) {
 #'
 get_level_shift_coef <- function(x) {
   
-  co <- x[, coef[[1]], by = list(start_reg, end_reg, start_gap, end_gap, midpoint)]
+  co <- x[, coefs[[1]], by = list(start_reg, end_reg, start_gap, end_gap, midpoint)]
   co <- co[grep('level_shift', name)]
-  setnames(co, 'co', 'level_shift')
+  setnames(co, 'Estimate', 'level_shift')
   
   # there shouldn't be any NA values but remove them if there are
   co <- co[!is.na(level_shift)]
@@ -308,10 +331,9 @@ get_level_shift_coef <- function(x) {
 #'
 level_shift_to_datetime <- function(x) {
   
-  tmp <- 'level_shiftlevel_shift_X2016.09.15.12.38.00'
   # Remove non-numeric
   x <- gsub("[^0-9.-]", "", x)
-  datetime <- paste(scan(text = x, sep = '.'), collapse = ' ')
+  datetime <- paste(scan(text = x, sep = '.', quiet = TRUE), collapse = ' ')
   
   as.POSIXct(datetime, 
              format = '%Y %m %d %H %M %S', 
@@ -331,15 +353,15 @@ level_shift_to_datetime <- function(x) {
 get_intercept_stats <- function(x) {
   
   # get level_shift from regression
-  x <- get_level_shift_coef(x)
+  y <- get_level_shift_coef(x)
   
   # the name is for grouping coefficients
-  x <- x[, list(shifts = unique(level_shift),
+  y <- y[, list(shifts = unique(level_shift),
                 name), 
           by = list(midpoint)]
   
   
-  x[, shift_diff := c(0.0, diff(shifts)), by = midpoint]
+  y[, shift_diff := c(0.0, diff(shifts)), by = midpoint]
   
   # 
   # mids <- unique(x[, list(shift_datetime = midpoint, 
@@ -364,22 +386,23 @@ get_intercept_stats <- function(x) {
   #return(x[midpoint == shift_datetime])
   
   # the first value should always be 0 and can be removed
-  x <- x[, .SD[-1], midpoint]
+  y <- y[, .SD[-1], midpoint]
 
-  x <- x[, list(min  = min(shift_diff),
+  y <- y[, list(min  = min(shift_diff),
                 max  = max(shift_diff),
                 mean = mean(shift_diff),
-                med  = median(shift_diff),
                 sd   = sd(shift_diff),
+                sh   = min(abs(c(range(shift_diff), mean(shift_diff)))),
                 n = .N,
-                shift_datetime = level_shift_to_datetime(name)),
+                midpoint = level_shift_to_datetime(name)),
      by = list(name)]
   
-  x <- x[!(min == 0.0 & max == 0)]
+  y <- y[!(min == 0.0 & max == 0)]
   
-  return(x)
+  y <- x[y, on = 'midpoint']
+  
+  return(y)
 }
-
 
 
 #' add_level_shifts
@@ -395,7 +418,7 @@ add_level_shifts <- function(x, y) {
   out <- rep(0.0, length(x))
   
   for(i in 1:nrow(y)) {
-    wh <- which(x > y$shift_datetime[i])
+    wh <- which(x > y$midpoint[i])
     mn <- as.numeric(y[i, list(min, max, mean)])
     mn <- mn[which.min(abs(mn))]
     out[wh] <- out[wh] + mn

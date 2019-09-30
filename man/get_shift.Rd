@@ -13,7 +13,7 @@ get_shift(x, recipe, start, end)
 
 \item{start}{start subset time}
 
-\item{end}{end subset tiem}
+\item{end}{end subset time}
 }
 \value{
 data.table of predictions
