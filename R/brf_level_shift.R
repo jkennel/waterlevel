@@ -139,11 +139,13 @@ gap_fill <- function(x,
                  end_val = end_val)]
   
   
-  gaps <- get_intercept_stats(gaps)
-  
   if(include_level_shift) {
+    
+    gaps <- get_intercept_stats(gaps)
+  
     gaps[, start_val := start_val - cumsum(c(0, sh[-length(sh)]))]
     gaps[, end_val := end_val - cumsum(sh)]
+    
   }
   
   gaps[, to_exclude := nrow(predict_adj[[1]]) == 0, by = midpoint]
