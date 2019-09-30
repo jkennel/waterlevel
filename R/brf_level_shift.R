@@ -94,6 +94,7 @@ find_level_shift <- function(x,
 #' @param buffer_start how much buffer on each side of gap
 #' @param buffer_end how much buffer on each side of gap
 #' @param max_interp largest gap to interpolate
+#' @param include_level_shift include level shift in adjustment
 #'
 #' @return data.table of predictions
 #' 
@@ -107,7 +108,8 @@ gap_fill <- function(x,
                      time_interval = 1L, 
                      buffer_start = 86400 * 4,
                      buffer_end = 86400 * 4,
-                     max_interp = 86400 * 7) {
+                     max_interp = 86400 * 7,
+                     include_level_shift = TRUE) {
   
   # gaps <- find_level_shift(x, dep_var = dep_var, time_var = time_var,
   #                          time_interval = time_interval)
@@ -139,8 +141,10 @@ gap_fill <- function(x,
   
   gaps <- get_intercept_stats(gaps)
   
-  gaps[, start_val := start_val - cumsum(c(0, sh[-length(sh)]))]
-  gaps[, end_val := end_val - cumsum(sh)]
+  if(include_level_shift) {
+    gaps[, start_val := start_val - cumsum(c(0, sh[-length(sh)]))]
+    gaps[, end_val := end_val - cumsum(sh)]
+  }
   
   gaps[, `:=` (predict_adj =
                  list(data.table(datetime = predict_adj[[1]][['datetime']],

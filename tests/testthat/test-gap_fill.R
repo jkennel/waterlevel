@@ -109,12 +109,13 @@ test_that("gap_fill works", {
   #           x = FALSE, y = FALSE, tol = 1e-50)
   
   g <- gap_fill(transducer, tmp, rec, time_interval = 120, 
-                buffer_start = 86400 * 6, buffer_end = 86400 * 4)
+                buffer_start = 86400 * 6, buffer_end = 86400 * 4,
+                include_level_shift = FALSE)
   
 
   
   transducer[, sh := add_level_shifts(datetime, g)]
-  transducer[, wl := wl - sh]
+  transducer[, wl2 := wl - sh]
   
   # tmp <- find_level_shift(transducer, dep_var = 'wl2', 
   #                         time_var = 'datetime', 
@@ -126,8 +127,8 @@ test_that("gap_fill works", {
   transducer[to_add, wl := adj, on = 'datetime']
   t_new <- copy(transducer)
   plot(wl~datetime, t_new, type='l')
-  data(transducer)
-  points(wl~datetime, transducer, type='l', col = 'blue')
+  #data(transducer)
+  points(wl2~datetime, transducer, type='l', col = 'blue')
   t_new[, res := wl-transducer$wl]
   plot(res~datetime, t_new, type='l')
   
