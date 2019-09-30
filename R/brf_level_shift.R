@@ -137,10 +137,13 @@ gap_fill <- function(x,
   
   gaps <- get_intercept_stats(gaps)
   
+  gaps[, start_val := start_val - cumsum(c(0, sh[-length(sh)]))]
+  gaps[, end_val := end_val - cumsum(sh)]
+  
   gaps[, `:=` (predict_adj =
                  list(data.table(datetime = predict_adj[[1]][['datetime']],
                                  adj = stretch_interp(start_val[1], 
-                                                      end_val[1] - sh[1], 
+                                                      end_val[1], 
                                                       predict_adj[[1]][['predict_adj']])))), 
        by = midpoint]
   

@@ -63,9 +63,9 @@ test_that("gap_fill works", {
   transducer[15000:16000, wl := NA_real_]
   transducer[18000:18500, wl := NA_real_]
   # 
-  transducer[15500:nrow(transducer), wl := wl + 0.002]
-  transducer[18250:nrow(transducer), wl := wl + 0.003]
-  transducer[25100:nrow(transducer), wl := wl + 0.01]
+  transducer[15500:nrow(transducer), wl := wl + 0.3]
+  transducer[18250:nrow(transducer), wl := wl + 0.05]
+  transducer[25100:nrow(transducer), wl := wl + 0.2]
   
   # transducer[21600:21700, wl := NA_real_]
   # transducer[21700:nrow(transducer), wl := wl + 0.03]
@@ -109,16 +109,27 @@ test_that("gap_fill works", {
   
 
   
-  gtransducer[, sh := add_level_shifts(datetime, g)]
-  transducer[, wl2 := wl - sh]
+  transducer[, sh := add_level_shifts(datetime, g)]
+  transducer[, wl := wl - sh]
   
   # tmp <- find_level_shift(transducer, dep_var = 'wl2', 
   #                         time_var = 'datetime', 
   #                         time_interval = 120L)
   
   #tmp2 <- gap_fill2(tmp, g)
+  to_add <- g[, predict_adj[[1]], by = midpoint]
+  to_add[, adj := adj + rnorm(nrow(to_add), sd = 0.0001)]
+  transducer[to_add, wl := adj, on = 'datetime']
+  t_new <- copy(transducer)
+  plot(wl~datetime, t_new, type='l')
+  data(transducer)
+  points(wl~datetime, transducer, type='l', col = 'blue')
+  t_new[, res := wl-transducer$wl]
+  plot(res~datetime, t_new, type='l')
   
-  plot(transducer$sh, type='l')
+  
+  
+  
   abline(h = 0.002)
   abline(h = 0.005)
   abline(h = 0.015)
