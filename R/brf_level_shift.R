@@ -18,10 +18,12 @@
 set_level_shift <- function(x,
                             level_breaks = NULL) {
   
+  br <- c(min(x, na.rm = TRUE),
+          level_breaks,
+          max(x, na.rm = TRUE))
+  attr(br, "tzone") <- "UTC"
   cut(x, 
-      breaks = c(min(x, na.rm = TRUE),
-                 level_breaks,
-                 max(x, na.rm = TRUE)),
+      breaks = br,
       include.lowest = TRUE)
 }
 
@@ -402,8 +404,11 @@ get_intercept_stats <- function(x) {
   #return(x[midpoint == shift_datetime])
   
   # the first value should always be 0 and can be removed
+  
   y <- y[, .SD[-1], midpoint]
+  
   small_mag <- function(x) { x[which.min(abs(x))]}
+  
   y <- y[, list(min  = min(shift_diff),
                 max  = max(shift_diff),
                 mean = mean(shift_diff),
