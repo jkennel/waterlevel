@@ -130,10 +130,22 @@ gap_fill <- function(x,
   gaps <- gaps[, get_fit_summary(x, recipe, start_reg, end_reg, start, end),
        by = list(midpoint = as.POSIXct(midpoint, tz = 'UTC'),
                  start_gap = as.POSIXct(start, tz = 'UTC'), 
-                 end_gap = as.POSIXct(end, tz = 'UTC'))]
+                 end_gap = as.POSIXct(end, tz = 'UTC'),
+                 start_val = start_val, 
+                 end_val = end_val)]
   
   
-  gaps  
+  gaps <- get_intercept_stats(gaps)
+  
+  gaps[, `:=` (predict_adj =
+                 list(data.table(datetime = predict_adj[[1]][['datetime']],
+                                 adj = stretch_interp(start_val[1], 
+                                                      end_val[1] - sh[1], 
+                                                      predict_adj[[1]][['predict_adj']])))), 
+       by = midpoint]
+  
+  
+  
 }
 
 

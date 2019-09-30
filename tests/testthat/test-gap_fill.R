@@ -107,11 +107,10 @@ test_that("gap_fill works", {
   g <- gap_fill(transducer, tmp, rec, time_interval = 120, 
                 buffer_start = 86400 * 6, buffer_end = 86400 * 4)
   
-  s <- get_intercept_stats(g)
+
   
-  
-  # transducer[, sh := add_level_shifts(datetime, s)]
-  # transducer[, wl2 := wl - sh]
+  gtransducer[, sh := add_level_shifts(datetime, g)]
+  transducer[, wl2 := wl - sh]
   
   # tmp <- find_level_shift(transducer, dep_var = 'wl2', 
   #                         time_var = 'datetime', 
@@ -119,10 +118,10 @@ test_that("gap_fill works", {
   
   #tmp2 <- gap_fill2(tmp, g)
   
-  # plot(transducer$sh, type='l')
-  # abline(h = 0.002)
-  # abline(h = 0.005)
-  # abline(h = 0.015)
+  plot(transducer$sh, type='l')
+  abline(h = 0.002)
+  abline(h = 0.005)
+  abline(h = 0.015)
   #expect_equal(s$mean, 0.01, tolerance = 0.001, scale = 1.0)
   
 })
