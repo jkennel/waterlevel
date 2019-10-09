@@ -94,19 +94,19 @@ test_that("gap_fill works", {
     #step_dummy(level_shift, role = 'level_shift') %>%
     step_zv(has_role(match = "level_shift"))
   
-  # dat <- recipe %>%
-  #   prep(training = transducer) %>%
-  #   portion()
-  # 
-  # dat[!is.na(dat$outcome),]
-  # dat[is.na(dat$outcome),]
-  # 
-  # 
-  # form <- formula_from_recipe(recipe = recipe)
-  # 
-  # fit <- lm(form,
-  #           dat[!is.na(dat$outcome),],
-  #           x = FALSE, y = FALSE, tol = 1e-50)
+  dat <- rec %>%
+    prep(training = transducer) %>%
+    portion()
+
+  dat[!is.na(dat$outcome),]
+  dat[is.na(dat$outcome),]
+
+
+  form <- formula_from_recipe(recipe = rec)
+
+  fit <- lm(form,
+            dat[!is.na(dat$outcome),],
+            x = FALSE, y = FALSE, tol = 1e-50)
   
   g <- gap_fill(transducer, tmp, rec, time_interval = 120, 
                 buffer_start = 86400 * 6, buffer_end = 86400 * 4,
