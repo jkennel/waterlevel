@@ -181,7 +181,7 @@ gap_fill <- function(x,
 #'
 get_fit_summary <- function(x, recipe, start_reg, end_reg, start_gap, end_gap) {
   
-  y   <- x[datetime %between% c(start_reg, end_reg)]
+  y   <- x[between(datetime, start_reg, end_reg)]
   
   dat <- recipe %>%
     prep(training = y) %>%
@@ -199,7 +199,7 @@ get_fit_summary <- function(x, recipe, start_reg, end_reg, start_gap, end_gap) {
   pt[, predict := predict(fit, dat_sub)]
   pt[, level_shift := level_shift - level_shift[1]]
   pt[, predict_adj := predict - level_shift]
-  pt <- pt[datetime %between% c(start_gap, end_gap)]
+  pt <- pt[between(datetime, start_gap, end_gap)]
   pt[, level_shift := NULL]
   pt[, predict := NULL]
   
@@ -284,8 +284,8 @@ gap_fill2 <- function(x, y) {
   
   x[, list(interp = stretch_interp(start_val[1], 
                                    end_val[1], 
-                                   predict_adj[datetime %between% c(start[1], end[1])]),
-           datetime = datetime[datetime %between% c(start[1], end[1])]), 
+                                   predict_adj[between(datetime, start[1], end[1])]),
+           datetime = datetime[between(datetime, start[1], end[1])]), 
        by = list(midpoint)]
 
 }
@@ -303,7 +303,7 @@ gap_fill2 <- function(x, y) {
 #'
 get_shift <- function(x, recipe, start, end) {
   
-  y <- x[datetime %between% c(start, end)]
+  y <- x[between(datetime, start, end)]
 
   dat <- recipe %>%
     prep(training = y) %>%
