@@ -63,6 +63,11 @@ find_level_shift <- function(x,
       start <- tms[(wh[i])]
       end   <- tms[(wh[i]) + 1]
       
+      # make sure it is even 
+      if((as.numeric(start)-as.numeric(end)) %% 2 != 0) {
+        end <- end + 1
+      }
+      
       subs[[i]] <- data.table(start     = start, 
                               end       = end,
                               start_val = x[get(time_var) == start][[dep_var]],
@@ -72,7 +77,7 @@ find_level_shift <- function(x,
   
   subs <- rbindlist(subs)
 
-  subs[, midpoint := as.POSIXct((as.numeric(start) + as.numeric(end)) / 2, 
+  subs[, midpoint := as.POSIXct(round((as.numeric(start) + as.numeric(end)) / 2), 
                                 origin = '1970-01-01', tz = 'UTC')]
   
   return(subs)
@@ -335,7 +340,8 @@ get_shift <- function(x, recipe, start, end) {
 #'
 get_level_shift_coef <- function(x) {
   
-  co <- x[, coefs[[1]], by = list(start_reg, end_reg, start_gap, end_gap, midpoint)]
+  co <- x[, (coefs[[1]]), by = list(start_reg, end_reg, start_gap, end_gap, midpoint)]
+  # print(co, 100)
   co <- co[grep('level_shift', name)]
   setnames(co, 'Estimate', 'level_shift')
   

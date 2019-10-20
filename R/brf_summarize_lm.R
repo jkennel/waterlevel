@@ -83,6 +83,8 @@ summarize_coef <- function(fit) {
   
   co <- fit$coefficients
   
+  # print(str(co))
+  
   if(is.vector(co)) {
     co <- data.table(
       name = names(co),
@@ -94,6 +96,7 @@ summarize_coef <- function(fit) {
       co
     )
   }
+  # print(str(co))
   
   co
 }
