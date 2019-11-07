@@ -5,6 +5,9 @@ using namespace RcppParallel;
 using namespace arma;
 using namespace Rcpp;
 
+//Cramers rule
+
+
 
 struct det_worker: public Worker {
 

@@ -4,7 +4,7 @@
 #' @param magnitude Richter magnitude 
 #' @param distance epicentral distance
 #'
-#' @return
+#' @return value of the energy density
 #' @export
 #'
 #' @examples

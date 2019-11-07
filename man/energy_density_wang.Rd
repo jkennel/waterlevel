@@ -11,6 +11,9 @@ energy_density_wang(magnitude, distance)
 
 \item{distance}{epicentral distance}
 }
+\value{
+value of the energy density
+}
 \description{
 energy_density_wang
 }

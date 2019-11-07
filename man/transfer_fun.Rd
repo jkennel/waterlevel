@@ -13,7 +13,7 @@ transfer_fun(dat, vars, time = "datetime", method = "spec_pgram", ...)
 
 \item{time}{the name of the column that contains the POSIXct date and time}
 
-\item{method}{either spec_pgram or spec_welch}
+\item{method}{either spec_pgram, spec_welch, or spec_multitaper}
 
 \item{...}{arguments to pass to method}
 }

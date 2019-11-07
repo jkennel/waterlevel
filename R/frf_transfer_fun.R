@@ -3,7 +3,7 @@
 #' @param dat data that has the independent and dependent variables (data.table)
 #' @param vars variables to include for transfer function calculation
 #' @param time the name of the column that contains the POSIXct date and time
-#' @param method either spec_pgram or spec_welch
+#' @param method either spec_pgram, spec_welch, or spec_multitaper
 #' @param ... arguments to pass to method
 #'
 #' @return transfer function, gain and phase, coherency
@@ -33,7 +33,22 @@ transfer_fun <- function(dat, vars, time = 'datetime', method = 'spec_pgram', ..
     #                      length.out = floor(n_padded/2)) * 86400/t_interval
     frequency <- seq.int(from = 0, by = df, 
                          length.out = n_padded) * 86400/t_interval
+  } else if (method == 'spec_multitaper') {
     
+    x <- list(...)
+    if(!'tapers' %in% names(x)) {
+      tapers <- 7L
+    } else {
+      tapers <- x[['tapers']]
+    }
+    
+    fftz <- apply(as.matrix(dat[, vars, with = FALSE]), 2, FFT)
+    pgram <- resample_fft_parallel(fftz, tapers = tapers)$psd
+    n_padded <- nrow(fftz)
+    df       <- 1 / n_padded
+    frequency <- seq.int(from = df, by = df, 
+                         length.out = n_padded) * 2*86400/t_interval
+    frequency <- frequency[1:nrow(pgram)]
   } else {
     stop(paste(method, 'method not yet implemented'))
   }
@@ -174,5 +189,5 @@ spec_welch_tf_error <- function(coh, amp, overlap = 0.5, n_subsets = 10, return 
   } else {
     return(amp_error)
   }
-  
+
 }

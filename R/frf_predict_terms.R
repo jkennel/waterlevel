@@ -24,7 +24,6 @@ frf_predict_terms <- function(frf,
   n_cycles <- diff(as.numeric(x[[time_col]][1:2])) / 86400
   
   
-  
   # get variable names
   gain_name <- c()
   phase_name <- c()

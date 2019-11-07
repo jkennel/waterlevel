@@ -131,7 +131,7 @@ spec_pgram <-
     }
     
     if(!is.null(kernel)) {
-      # fill in lower triangle with the complex conjugate to save compuation - jrk
+      # fill in lower triangle with the complex conjugate to save computation - jrk
       k_fft <- fftw::FFT(pad_kernel(kernel, N))
 
       for (i in 1L:ncol(x)) for (j in 1:ncol(x))

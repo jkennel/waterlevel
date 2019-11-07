@@ -171,3 +171,76 @@ konno_ohmachi_serial <- function(x, f, b = 10L) {
     .Call(`_waterlevel_konno_ohmachi_serial`, x, f, b)
 }
 
+#' @rdname parabolic_weights_field
+#' 
+#' @param ntap the maximum number of tapers
+#' 
+#' @export
+parabolic_weights_field <- function(ntap) {
+    .Call(`_waterlevel_parabolic_weights_field`, ntap)
+}
+
+#' @title Resample an fft using varying numbers of sine tapers
+#' 
+#' @description
+#' Produce an un-normalized psd based on an fft and a vector of optimal sine tapers
+#' 
+#' @details
+#' To produce a psd estimate with our adaptive spectrum estimation method, we need only make one 
+#' fft calculation initially and then
+#' apply the weighting factors given by \code{\link{parabolic_weights_field}}, which this
+#' function does.
+#' 
+#' @param fftz complex; a matrix representing the dual-length \code{\link{fft}}; see also the \code{dbl} argument
+#' @param tapers integer; a vector of tapers
+#' @param verbose logical; should messages be given?
+#' @param dbl logical; should the code assume \code{fftz} is dual-length or single-length?
+#' @param tapcap integer; the maximum number of tapers which can be applied; note that the length is
+#' automatically limited by the length of the series.
+#' 
+#' @seealso \code{\link{riedsid}}
+#' 
+#' @examples
+#' fftz <- complex(real=1:8, imaginary = 1:8)
+#' taps <- 1:4
+#' try(resample_fft_rcpp2(fftz, taps))
+#' 
+#' @export
+resample_mvfft <- function(fftz, tapers, verbose = TRUE, dbl = TRUE, tapcap = 10000L) {
+    .Call(`_waterlevel_resample_mvfft`, fftz, tapers, verbose, dbl, tapcap)
+}
+
+calc_psd <- function(fftz, taper_vec, para, j, ne2) {
+    .Call(`_waterlevel_calc_psd`, fftz, taper_vec, para, j, ne2)
+}
+
+#' @title Resample an fft using varying numbers of sine tapers
+#'
+#' @description
+#' Produce an un-normalized psd based on an fft and a vector of optimal sine tapers
+#'
+#' @details
+#' To produce a psd estimate with our adaptive spectrum estimation method, we need only make one
+#' fft calculation initially and then
+#' apply the weighting factors given by \code{\link{parabolic_weights_rcpp}}, which this
+#' function does.
+#'
+#' @param fftz complex; a matrix representing the dual-length \code{\link{fft}}; see also the \code{dbl} argument
+#' @param tapers integer; a vector of tapers
+#' @param verbose logical; should messages be given?
+#' @param dbl logical; should the code assume \code{fftz} is dual-length or single-length?
+#' @param tapcap integer; the maximum number of tapers which can be applied; note that the length is
+#' automatically limited by the length of the series.
+#'
+#' @seealso \code{\link{riedsid}}
+#'
+#' @examples
+#' fftz <- complex(real=1:8, imaginary = 1:8)
+#' taps <- 1:4
+#' try(resample_fft_rcpp2(fftz, taps))
+#'
+#' @export
+resample_fft_parallel <- function(fftz, tapers, verbose = TRUE, dbl = TRUE, tapcap = 10000L) {
+    .Call(`_waterlevel_resample_fft_parallel`, fftz, tapers, verbose, dbl, tapcap)
+}
+
