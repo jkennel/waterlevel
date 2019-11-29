@@ -87,21 +87,20 @@ transfer_fun <- function(dat, vars, time = 'datetime', method = 'spec_pgram', ..
   
   
   coh_name <- c()
+  coh_phase_name <- c()
   k <- 1
-  for (i in 1:(length(vars)-1)) {
-    for (j in (1+i):(length(vars))) {
-      coh_name[k]  <- paste0('coherency_', vars[i], '_', vars[j]) 
-      k <- k + 1
-      coh_name[k]  <- paste0('coherency_phase_', vars[i], '_', vars[j]) 
-      k <- k + 1
+  # for (i in 1:(length(vars)-1)) {
+    for (j in (2):(length(vars))) {
+      coh_name[j-1]  <- paste0('coherency_', vars[1], '_', vars[j]) 
+      coh_phase_name[j-1]  <- paste0('coherency_phase_', vars[1], '_', vars[j]) 
     }
-  }
+  # }
   
   
   colnames(tf) <- tf_name
   colnames(gain) <- gain_name
   colnames(phase) <- phase_name
-  colnames(coherency) <- coh_name
+  colnames(coherency) <-c(coh_name, coh_phase_name)
   colnames(spectrum) <- vars
   
   # print(str(frequency))
@@ -145,18 +144,18 @@ coh_phase <- function(pgram) {
     stop('Cannot calculate coherency for a single periodogram')
   }
   
-  coh <- phase <- matrix(NA_real_, nrow = n_r, ncol = n_ser * (n_ser - 1) / 2)
+  coh <- phase <- matrix(NA_real_, nrow = n_r, ncol = (n_ser - 1))
   
-  for (i in 1L:(n_ser - 1)) {
+  for (i in 2L:(n_ser)) {
     
-    for (j in (i + 1):n_ser) {
+    #for (j in (i + 1):n_ser) {
       
-      ind <- i + (j - 1) * (j - 2)/2
+      #ind <- i + (j - 1) * (j - 2)/2
       
-      coh[, ind]   <- Re(Mod(pgram[, i, j])^2 / (pgram[, i, i] * pgram[, j, j]))
-      phase[, ind] <- Arg(pgram[, i, j])
+      coh[, i-1]   <- Re(Mod(pgram[, 1, i])^2 / (pgram[, 1, 1] * pgram[, i, i]))
+      phase[, i-1] <- Arg(pgram[, 1, i])
       
-    }
+    #}
   }
   
   return(cbind(coh, phase))

@@ -1,4 +1,4 @@
-// To be provided to the psd package
+// To provide to the psd package
 // Todo check frequencies
 
 #include <RcppArmadillo.h>
@@ -459,69 +459,32 @@ List resample_fft_parallel(const arma::cx_mat& fftz,
 
 
 /*** R
-# 
-# library(fst)
-# library(data.table)
-# library(waterlevel)
-# library(psd)
-# wl <- read_fst('/media/kennel/Data/phd/final/thesis-master (2)/data/dist_lag/hess_2018_kennel_2019.fst', as.data.table = TRUE)
-# wl <- na.omit(wl)
-# library(microbenchmark)
-# library(fftw)
-# library(fftwtools)
-# 
-# n. <- 86400 * 62 - 1
-# wl <- wl[(86400*2):(86400*2 + n.)]
-# wl[, RD130 := lm(RD130~datetime)$residuals]
-# wl[, baro := lm(baro~datetime)$residuals]
-# wl[, seismic := lm(seismic~datetime)$residuals]
-# wl[, et := lm(et~datetime)$residuals]
-# # tmp <- pilot_spec(wl$RD130)
-# # taps <- riedsid2(tmp)
-# fftz <- matrix(c(FFT(wl$RD130), 
-#                  FFT(wl$baro),
-#                  FFT(wl$et),
-#                  FFT(wl$seismic)),
-#                ncol = 4)
-# 
-# fftz[1,] <- (fftz[1,] + fftz[nrow(fftz),])/2
-# fftz[nrow(fftz),] <- (fftz[1,] + fftz[nrow(fftz),])/2
-# 
-# n <- 100000
-# fftz <- fftz[(nrow(fftz)/2):1, ][1:n,]
-# taps  <- seq(7, 5000, 30000)
-# 
-# system.time(
-#   psd_p   <- resample_fft_parallel(fftz, taps, verbose = FALSE, tapcap = 12000)$psd
-# )
-# 
-# tf_new <- solve_tf_parallel(psd_p)
-# 
-# gain  <- Mod(tf_new)
-# ph  <- Arg(tf_new)
-# 
-# nnn <- 200
-# n_padded <- nrow(wl)#nrow(pgram)
-# df       <- 1 / n_padded
-# frequency <- seq.int(from = df, by = df, 
-#                      length.out = n_padded) * 86400 * 2
-# plot(frequency[1:nnn], as.numeric(gain[1:nnn, 3]), type='l', log = 'xy', ylim = c(1e-7, 0.00001), col = 'black')
-# 
-# a <- approx(x = frequency[1:nnn], 
-#             y = as.numeric(gain[1:nnn, 1]),
-#             xout = 10^seq(-1, 3, 0.1))
-# plot(a, log = 'x', pch =20)
-# 
-# 
-# all.equal(psd_p, psd_s)
-system.time({
 
-taps  <- round(seq(9, 5000, length.out = 50000))
-tmp <- transfer_fun(wl, vars = c('RD130', 'baro', 'et'), time = 'datetime', method = 'spec_multitaper', tapers = taps)
-}
-)
-plot(gain_RD130_baro~frequency, tmp, log = 'x', type='l')
-pspectrum(wl$RD130[1:86400*3])
-plot(RD130~frequency, tmp, log = 'xy', type='l')
-grid()
+library(waterlevel)
+library(fftw)
+library(data.table)
+
+data(transducer)
+
+
+# Apply welch's method with different subsets
+# For a small dataset like this it is possible
+welch <- lapply(c(2, 5, 10, seq(20, 100, 10), seq(100, 700, 100)), function(x) {
+  as.data.table(transfer_fun(transducer, vars = c('wl', 'baro', 'et'),
+                      method = 'spec_welch',
+                      n_subsets = x))[6:20]
+})
+tmp <- rbindlist(welch)
+
+# Apply psd with linearly increasing number of tapers
+# We loop over the number of length of the taper vector
+tf_mt <- as.data.table(transfer_fun(transducer, vars = c('wl', 'baro', 'et'),
+                      method = 'spec_multitaper',
+                      tapers = round(seq(3, 7000, length.out = nrow(transducer)/3))))
+
+
+plot(gain_wl_baro~frequency,tmp[frequency < 700], type='p', pch = 20, log = 'x', col = '#00000040')
+points(gain_wl_baro~frequency, tf_mt[frequency < 600], type='l', log = 'x', col = '#FF000080')
+
+
 */

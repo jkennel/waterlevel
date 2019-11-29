@@ -1,4 +1,3 @@
-
 #' energy_density_wang
 #'
 #' @param magnitude Richter magnitude 
